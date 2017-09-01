@@ -3,6 +3,10 @@
 # Import standard Python modules
 import os,sys,optparse
 
+rootdir = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(rootdir, '../../xmlstore'))
+sys.path.append(os.path.join(rootdir, '../../xmlplot'))
+
 # Import Qt Modules
 from xmlstore.qt_compat import QtGui,QtCore,qt4_backend,qt4_backend_version,mpl_qt4_backend
 
@@ -20,7 +24,7 @@ os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
 import xmlstore.util, xmlstore.gui_qt4
 import core.common
 import commonqt
-import errortrap
+import xmlplot.errortrap
 
 def getVersions():
     yield ('Python','%i.%i.%i %s %i' % tuple(sys.version_info))
@@ -434,11 +438,11 @@ class PageChooseAction(commonqt.WizardPage):
         return res
 
 def main(options,args):
+    global core, xmlstore, xmlplot
     if options.verbose:
         print 'Module versions:'
         for module,version in getVersions():
             print '   %s %s' % (module,version)
-        global core,xmlstore
         import core.common,xmlstore.xmlstore
         core.common.verbose = True
         xmlstore.util.verbose = True
@@ -455,7 +459,7 @@ def main(options,args):
     if options.schemadir is not None:
         import core.scenario
         core.scenario.schemadir = options.schemadir
-	
+
     # Create the application and enter the main message loop.
     createQApp = QtGui.QApplication.startingUp()
     if createQApp:
@@ -552,7 +556,7 @@ def main(options,args):
     # Redirect stderr to error dialog (last action before message loop is started,
     # because text sent to stderr will be lost if redirected to error dialog without
     # the message loop being started.
-    errortrap.redirect_stderr('GOTM-GUI','You may be able to continue working. However, we would appreciate it if you report this error. To do so, send an e-mail to <a href="mailto:gotm-users@googlegroups.com">gotm-users@googlegroups.com</a> with the above error message, and the circumstances under which the error occurred.')
+    xmlplot.errortrap.redirect_stderr('GOTM-GUI','You may be able to continue working. However, we would appreciate it if you report this error. To do so, send an e-mail to <a href="mailto:gotm-users@googlegroups.com">gotm-users@googlegroups.com</a> with the above error message, and the circumstances under which the error occurred.')
 
     # Enter the main message loop.
     ret = app.exec_()
