@@ -14,8 +14,10 @@ if(WIN32)
 endif()
 
 # Include GOTM's CMakeLists.txt.
+set(GOTM_EMBED_VERSION ON CACHE BOOL "Embed GOTM version information" FORCE)
+find_path(GOTM_BASE src/gotm/gotm.F90 DOC "Path to GOTM source directory.")
 set(GOTM_BUILD_LIBRARY ON)
-add_subdirectory(${PROJECT_SOURCE_DIR}/../src gotm)
+add_subdirectory(${GOTM_BASE}/src gotm)
 
 # Add Python-FABM library
 add_library(python_gotm SHARED
@@ -29,11 +31,11 @@ endif()
 # Link in FABM itself
 target_link_libraries(python_gotm ${GOTM_LIBRARIES})
 
-# Set include directories with modules (*.mod) - our own and FABM's.
+# Set include directories with modules (*.mod)
 set_property(TARGET python_gotm APPEND PROPERTY INCLUDE_DIRECTORIES "${CMAKE_CURRENT_BINARY_DIR}/gotm/modules")
 
-# Set include directories with header files (*.h) - our own and FABM's.
-set_property(TARGET python_gotm APPEND PROPERTY INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/../include")
+# Set include directories with header files (*.h)
+set_property(TARGET python_gotm APPEND PROPERTY INCLUDE_DIRECTORIES "${GOTM_BASE}/include")
 
 # Query Python itself for default installation prefix.
 find_package(PythonInterp)
