@@ -106,7 +106,7 @@ class VisualizeWidget(QtGui.QWidget):
         self.varname = None
         self.result = result
 
-        self.treestore = self.result.getVariableTree(os.path.join(core.common.getDataRoot(),'schemas/outputtree.schema'),plottableonly=True)
+        self.treestore = self.result.getVariableTree(plottableonly=True)
         self.model = xmlstore.gui_qt4.TypedStoreModel(self.treestore,nohide=False,novalues=True)
 
         self.treeVariables = xmlstore.gui_qt4.ExtendedTreeView(self)
@@ -226,7 +226,7 @@ class ConfigureReportWidget(QtGui.QWidget):
             self.pathOutput.defaultpath = os.path.dirname(self.result.scenario.path)
 
         self.labVariables = QtGui.QLabel('Included variables:',self)
-        self.treestore = self.result.getVariableTree(os.path.join(core.common.getDataRoot(),'schemas/outputtree.schema'),plottableonly=True)
+        self.treestore = self.result.getVariableTree(plottableonly=True)
         
         # Prepare selection based on report settings
         selroot = self.report.store['Figures/Selection']

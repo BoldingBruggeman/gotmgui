@@ -150,7 +150,7 @@ if res.returncode==0:
         rep.store.root.copyFrom(res.store['ReportSettings'])
 
         # Add all possible output variables
-        treestore = res.getVariableTree(os.path.join(core.common.getDataRoot(),'schemas/outputtree.schema'),plottableonly=True)
+        treestore = res.getVariableTree(plottableonly=True)
         selroot = rep.store['Figures/Selection']
         for node in treestore.root.getDescendants():
             if node.canHaveValue() and not node.isHidden():
