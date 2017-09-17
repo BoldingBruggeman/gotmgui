@@ -220,7 +220,7 @@ class Result(xmlplot.data.NetCDFStore_GOTM):
                 if dimnames==('time','lat','lon'):
                     good = True
             elif dimcount==4:
-                if (dimnames==('time','z','lat','lon')) | (dimnames==('time','z1','lat','lon')):
+                if (dimnames==('time','z','lat','lon')) | (dimnames==('time','zi','lat','lon')):
                     good = True
             if not good: del names[i]
         return names
