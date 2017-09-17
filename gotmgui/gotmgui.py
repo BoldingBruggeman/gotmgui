@@ -437,7 +437,7 @@ class PageChooseAction(commonqt.WizardPage):
             dialog.close()
         return res
 
-def main(options,args):
+def start(options,args):
     global core, xmlstore, xmlplot
     if options.verbose:
         print 'Module versions:'
@@ -567,8 +567,7 @@ def main(options,args):
     # Return the exit code of the Qt message loop.    
     return ret
 
-# If the script has been run (as opposed to imported), enter the main loop.
-if (__name__=='__main__'):
+def main():
     # Parse command line options for profiling
     parser = optparse.OptionParser()
     parser.add_option('--showoptions',action='store_true',help='provides access to persistent program settings via the Tools menu.')
@@ -580,21 +579,25 @@ if (__name__=='__main__'):
         parser.add_option('--schemadir', type='string', help='Path to scenario schema directory')
     parser.set_defaults(profile=False,showoptions=False,verbose=False,debug=False,nc=None,schemadir=None)
     (options, args) = parser.parse_args()
-    
+
     if options.debug: xmlstore.util.referencedobject.checkreferences = True
-    
+
     if options.profile:
         # We will do profiling
         import cProfile,pstats
-        cProfile.run('main(options,args)', 'gotmprof')
+        cProfile.run('start(options,args)', 'gotmprof')
         p = pstats.Stats('gotmprof')
         p.strip_dirs().sort_stats('cumulative').print_stats()
     else:
         # Just enter the main loop
-        ret = main(options,args)
+        ret = start(options, args)
 
     # Exit
     sys.exit(ret)
+
+# If the script has been run (as opposed to imported), enter the main loop.
+if  __name__ == '__main__':
+    main()
 
 # Reset previous working directory (only if we had to change it)
 os.chdir(os.path.dirname(oldworkingdir))
