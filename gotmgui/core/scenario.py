@@ -10,6 +10,7 @@ import os, shutil, re, datetime, sys
 # Import our own custom modules
 import xmlstore.xmlstore, xmlstore.util, xmlstore.datatypes
 import common, namelist
+import pygotm
 
 # Some parts of the schemas will be loaded from the GOTM source directory.
 # For the developer's version, the source directory can be found one level below the GUI.
@@ -556,16 +557,17 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
             return '('+(' '+condtype+' ').join(conddescs)+')'
         else:
             raise Exception('Unknown condition type "%s".' % condtype)
-            
+
 class Scenario(NamelistStore):
-    
+
     # Descriptive name for the store to be used when communicating with the user.
     packagetitle = 'GOTM scenario'
 
     @classmethod
     def getSchemaInfo(cls):
         global schemadir
-        if schemadir is None: schemadir = os.path.join(common.getDataRoot(),'schemas/scenario')
+        if schemadir is None:
+            schemadir = (os.path.join(common.getDataRoot(),'schemas/scenario'), pygotm.get_schemas())
         return xmlstore.xmlstore.schemainfocache[schemadir]
 
     def __init__(self,schema,valueroot=None,adddefault = True):
@@ -585,7 +587,7 @@ class Scenario(NamelistStore):
         # If the scenario was stored in the official 'save' version, and we only converted it to the display version,
         # we should not consider it changed. In that case, reset the 'changed' status.
         if store.originalversion==savedscenarioversion and store.version==guiscenarioversion: store.resetChanged()
-        
+
         return store
 
     @classmethod
@@ -601,8 +603,8 @@ class Scenario(NamelistStore):
     def saveAll(self,path,targetversion=None,*args,**kwargs):
         # Set default version
         if targetversion is None: targetversion = savedscenarioversion
-        
+
         # Make sure any missing values are filled with defaults before saving.
         kwargs['fillmissing'] = True
-        
+
         super(Scenario,self).saveAll(path,targetversion=targetversion,*args,**kwargs)

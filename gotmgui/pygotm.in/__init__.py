@@ -62,3 +62,6 @@ def get_version():
    strversion = ctypes.create_string_buffer(version_length)
    gotm.get_version(version_length,strversion)
    return strversion.value
+
+def get_schemas():
+    return os.path.join(os.path.dirname(__file__), 'schemas')

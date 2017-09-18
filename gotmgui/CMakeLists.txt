@@ -58,4 +58,6 @@ install(TARGETS python_gotm
   DESTINATION pygotm)
 install(DIRECTORY pygotm.in/
   DESTINATION pygotm)
+install(DIRECTORY ${GOTM_BASE}/schemas/
+  DESTINATION pygotm/schemas)
 
