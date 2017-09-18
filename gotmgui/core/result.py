@@ -216,13 +216,14 @@ class Result(xmlplot.data.NetCDFStore_GOTM):
             dimnames = self.nc.variables[names[i]].dimensions
             dimcount = len(dimnames)
             good = False
-            if   dimcount==3:
-                if dimnames==('time','lat','lon'):
+            if dimcount == 3:
+                if dimnames==('time', 'lat', 'lon'):
                     good = True
-            elif dimcount==4:
-                if (dimnames==('time','z','lat','lon')) | (dimnames==('time','zi','lat','lon')):
+            elif dimcount == 4 and names[i] not in ('z', 'zi'):
+                if (dimnames==('time', 'z', 'lat', 'lon')) | (dimnames==('time', 'zi', 'lat', 'lon')):
                     good = True
-            if not good: del names[i]
+            if not good:
+                del names[i]
         return names
 
     def getVariableTree(self, plottableonly=True):
