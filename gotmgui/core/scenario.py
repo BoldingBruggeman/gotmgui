@@ -10,7 +10,6 @@ import os, shutil, re, datetime, sys
 # Import our own custom modules
 import xmlstore.xmlstore, xmlstore.util, xmlstore.datatypes
 import common, namelist
-import pygotm
 
 # Some parts of the schemas will be loaded from the GOTM source directory.
 # For the developer's version, the source directory can be found one level below the GUI.
@@ -567,6 +566,7 @@ class Scenario(NamelistStore):
     def getSchemaInfo(cls):
         global schemadir
         if schemadir is None:
+            import pygotm
             schemadir = (os.path.join(common.getDataRoot(),'schemas/scenario'), pygotm.get_schemas())
         return xmlstore.xmlstore.schemainfocache[schemadir]
 
