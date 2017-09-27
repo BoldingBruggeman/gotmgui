@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='gotmgui',
-      version='0.1',
+      version='0.1.1',
       description=' --- update - ',
       long_description=readme(),
       url='http://github.com/BoldingBruggeman/gotmgui',
@@ -29,6 +29,9 @@ setup(name='gotmgui',
       package_data={'gotmgui': ['icons/*', 
                                  'reporttemplates/*/*',
                                  'schemas/*/*',
+                                 'gotmgui.ico',
+                                 'icon.png',
+                                 'logo.png',
                                ]}, 
       include_package_data=True,
       zip_safe=False)
