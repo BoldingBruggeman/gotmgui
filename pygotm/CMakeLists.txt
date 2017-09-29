@@ -18,6 +18,7 @@ set(GOTM_EMBED_VERSION ON CACHE BOOL "Embed GOTM version information" FORCE)
 find_path(GOTM_BASE src/gotm/gotm.F90 DOC "Path to GOTM source directory.")
 set(GOTM_BUILD_LIBRARY ON)
 add_subdirectory(${GOTM_BASE}/src gotm)
+mark_as_advanced(FORCE GOTM_EMBED_VERSION)
 
 # Add Python-FABM library
 add_library(python_gotm SHARED
