@@ -2,7 +2,7 @@
 
 #$Id: simulator.py,v 1.22 2009-10-14 09:22:51 jorn Exp $
 
-from xmlstore.qt_compat import QtGui,QtCore
+from xmlstore.qt_compat import QtGui, QtCore, QtWidgets
 
 import commonqt, core.common
 
@@ -62,39 +62,39 @@ class PageProgress(commonqt.WizardPage):
 
         oldresult = parent.getProperty('result')
         
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
 
         # Add label that asks user to wait
-        self.busylabel = QtGui.QLabel('Please wait while the simulation runs...',self)
+        self.busylabel = QtWidgets.QLabel('Please wait while the simulation runs...',self)
         self.busylabel.setVisible(oldresult is None)
         layout.addWidget(self.busylabel)
         
         # Add progress bar
-        self.bar = QtGui.QProgressBar(self)
+        self.bar = QtWidgets.QProgressBar(self)
         self.bar.setRange(0,1000)
         self.bar.setVisible(oldresult is None)
         layout.addWidget(self.bar)
         
         # Add label for time remaining.
-        self.labelRemaining = QtGui.QLabel(self)
+        self.labelRemaining = QtWidgets.QLabel(self)
         self.labelRemaining.setVisible(oldresult is None)
         layout.addWidget(self.labelRemaining)
 
         # Add (initially hidden) label for result.
-        self.resultlabel = QtGui.QLabel('The simulation is complete.',self)
+        self.resultlabel = QtWidgets.QLabel('The simulation is complete.',self)
         self.resultlabel.setVisible(oldresult is not None)
         layout.addWidget(self.resultlabel)
 
         # Add (initially hidden) show/hide output button.
-        self.showhidebutton = QtGui.QPushButton('Show diagnostic output',self)
-        self.showhidebutton.setSizePolicy(QtGui.QSizePolicy.Fixed,QtGui.QSizePolicy.Fixed)
+        self.showhidebutton = QtWidgets.QPushButton('Show diagnostic output',self)
+        self.showhidebutton.setSizePolicy(QtWidgets.QSizePolicy.Fixed,QtWidgets.QSizePolicy.Fixed)
         self.showhidebutton.setVisible(oldresult is not None)
         layout.addWidget(self.showhidebutton)
         self.showhidebutton.clicked.connect(self.onShowHideOutput)
 
         # Add (initially hidden) text box for GOTM output.
-        self.text = QtGui.QTextEdit(self)
-        self.text.setLineWrapMode(QtGui.QTextEdit.NoWrap)
+        self.text = QtWidgets.QTextEdit(self)
+        self.text.setLineWrapMode(QtWidgets.QTextEdit.NoWrap)
         self.text.setReadOnly(True)
         font = QtGui.QFont('Courier')
         font.setStyleHint(QtGui.QFont.TypeWriter)
@@ -105,8 +105,8 @@ class PageProgress(commonqt.WizardPage):
         layout.setStretchFactor(self.text,1)
 
         # Add (initially hidden) save-output button.
-        self.savebutton = QtGui.QPushButton('Save output to file',self)
-        self.savebutton.setSizePolicy(QtGui.QSizePolicy.Fixed,QtGui.QSizePolicy.Fixed)
+        self.savebutton = QtWidgets.QPushButton('Save output to file',self)
+        self.savebutton.setSizePolicy(QtWidgets.QSizePolicy.Fixed,QtWidgets.QSizePolicy.Fixed)
         self.savebutton.hide()
         layout.addWidget(self.savebutton)
         self.savebutton.clicked.connect(self.onSaveOutput)
@@ -200,7 +200,7 @@ class PageProgress(commonqt.WizardPage):
             self.showhidebutton.setText(curtext.replace('Hide','Show'))
 
     def onSaveOutput(self):
-        path,selectedFilter = map(unicode,QtGui.QFileDialog.getSaveFileNameAndFilter(self,'','','Text files (*.txt);;All files (*.*)'))
+        path,selectedFilter = map(unicode,QtWidgets.QFileDialog.getSaveFileNameAndFilter(self,'','','Text files (*.txt);;All files (*.*)'))
         if path=='': return
         f = open(path,'w')
         f.write(self.text.toPlainText())

@@ -16,15 +16,15 @@ def extractncdata(path,varname,pathout=None,fix='',plot=False,verbose=True,debug
         
     if plot:
         # Import GUI libraries
-        from xmlstore.qt_compat import QtGui,QtCore
+        from xmlstore.qt_compat import QtWidgets, QtGui, QtCore
         import xmlplot.gui_qt4
         
         # Create Qt4 application object if needed.
-        createQApp = QtGui.QApplication.startingUp()
+        createQApp = QtWidgets.QApplication.startingUp()
         if createQApp:
-            app = QtGui.QApplication([' '])
+            app = QtWidgets.QApplication([' '])
         else:
-            app = QtGui.qApp
+            app = QtWidgets.qApp
             
         dialogs = []
     

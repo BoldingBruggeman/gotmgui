@@ -8,7 +8,7 @@ sys.path.append(os.path.join(rootdir, '../../xmlstore'))
 sys.path.append(os.path.join(rootdir, '../../xmlplot'))
 
 # Import Qt Modules
-from xmlstore.qt_compat import QtGui,QtCore,qt4_backend,qt4_backend_version,mpl_qt4_backend
+from xmlstore.qt_compat import QtGui, QtCore, QtWidgets, qt4_backend, qt4_backend_version, mpl_qt4_backend
 
 # Configure matplotlib
 import matplotlib
@@ -63,11 +63,11 @@ class GOTMWizard(commonqt.Wizard):
         """
         commonqt.Wizard.__init__(self,parent,sequence,closebutton,headerlogo=os.path.join(core.common.getDataRoot(),'logo.png'))
 
-        self.bnTools = QtGui.QPushButton(commonqt.getIcon('advanced.png'),'&Tools',self)
+        self.bnTools = QtWidgets.QPushButton(commonqt.getIcon('advanced.png'),'&Tools',self)
         #self.bnTools.setEnabled(False)
         self.bnlayout.insertWidget(1,self.bnTools)
 
-        self.menuTools = QtGui.QMenu(self)
+        self.menuTools = QtWidgets.QMenu(self)
         self.actSaveScenario   = self.menuTools.addAction('Save scenario as...',self.onSaveScenarioAs)
         self.actExportScenario = self.menuTools.addAction('Export scenario to namelists...',self.onExportScenario)
         self.actSaveResult     = self.menuTools.addAction('Save result as...',self.onSaveResultAs)
@@ -102,10 +102,10 @@ class GOTMWizard(commonqt.Wizard):
             attr |= QtCore.Qt.WindowCloseButtonHint
         except AttributeError:
             pass
-        dialog = QtGui.QDialog(self,attr)
-        layout = QtGui.QVBoxLayout()
+        dialog = QtWidgets.QDialog(self,attr)
+        layout = QtWidgets.QVBoxLayout()
 
-        label = QtGui.QLabel( \
+        label = QtWidgets.QLabel( \
             """<p>GOTM-GUI is developed by <a href="http://www.bolding-bruggeman.com">Bolding & Bruggeman</a> (formerly Bolding & Burchard).</p>
 
 <p>This program is licensed under the <a href="http://www.gnu.org">GNU General Public License</a>.</p>
@@ -120,19 +120,19 @@ class GOTMWizard(commonqt.Wizard):
         for v in getVersions():
             strversions += '%s %s<br>' % v
 
-        labelVersions = QtGui.QLabel('In bug reports, please quote the following version information:',dialog)
+        labelVersions = QtWidgets.QLabel('In bug reports, please quote the following version information:',dialog)
         labelVersions.setWordWrap(True)
         layout.addWidget(labelVersions)
         
-        textVersions = QtGui.QTextEdit(strversions,dialog)
+        textVersions = QtWidgets.QTextEdit(strversions,dialog)
         textVersions.setMaximumHeight(120)
         textVersions.setReadOnly(True)
         layout.addWidget(textVersions)
         
-        bnOk = QtGui.QPushButton('&OK',self)
+        bnOk = QtWidgets.QPushButton('&OK',self)
         bnOk.clicked.connect(dialog.accept)
 
-        bnlayout = QtGui.QHBoxLayout()
+        bnlayout = QtWidgets.QHBoxLayout()
         bnlayout.addStretch(1.)
         bnlayout.addWidget(bnOk)
 
@@ -161,20 +161,20 @@ class GOTMWizard(commonqt.Wizard):
             self.getSettings().addUniqueValue('Paths/RecentScenarios','Path',path)
 
     def onExportScenario(self):
-        class ChooseVersionDialog(QtGui.QDialog):
+        class ChooseVersionDialog(QtWidgets.QDialog):
             """Dialog for choosing the version of GOTM to export namelists for.
             """
             def __init__(self,parent=None):
-                QtGui.QDialog.__init__(self,parent,QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint | QtCore.Qt.WindowTitleHint)
+                QtWidgets.QDialog.__init__(self,parent,QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint | QtCore.Qt.WindowTitleHint)
                 
-                layout = QtGui.QVBoxLayout()
+                layout = QtWidgets.QVBoxLayout()
                 
                 # Add introductory label.
-                self.label = QtGui.QLabel('Choose the version of GOTM to export for:',self)
+                self.label = QtWidgets.QLabel('Choose the version of GOTM to export for:',self)
                 layout.addWidget(self.label)
                 
                 # Add combobox with versions.
-                self.comboVersion = QtGui.QComboBox(self)
+                self.comboVersion = QtWidgets.QComboBox(self)
                 versions = scen.getSchemaInfo().getSchemas().keys()
                 versions.sort()
                 for v in versions:
@@ -184,15 +184,15 @@ class GOTMWizard(commonqt.Wizard):
                 self.comboVersion.setCurrentIndex(self.comboVersion.count()-1)
                 layout.addWidget(self.comboVersion)
                 
-                layoutButtons = QtGui.QHBoxLayout()
+                layoutButtons = QtWidgets.QHBoxLayout()
 
                 # Add "OK" button
-                self.bnOk = QtGui.QPushButton('&OK',self)
+                self.bnOk = QtWidgets.QPushButton('&OK',self)
                 self.bnOk.clicked.connect(self.accept)
                 layoutButtons.addWidget(self.bnOk)
 
                 # Add "Cancel" button
-                self.bnCancel = QtGui.QPushButton('&Cancel',self)
+                self.bnCancel = QtWidgets.QPushButton('&Cancel',self)
                 self.bnCancel.clicked.connect(self.reject)
                 layoutButtons.addWidget(self.bnCancel)
                 
@@ -205,7 +205,7 @@ class GOTMWizard(commonqt.Wizard):
         scen = self.getProperty('scenario')
         dialog = ChooseVersionDialog(self)
         res = dialog.exec_()
-        if res==QtGui.QDialog.Accepted:
+        if res==QtWidgets.QDialog.Accepted:
             curpath = None
             if scen.path is not None: curpath = os.path.dirname(scen.path)
             path = commonqt.browseForPath(self,curpath=curpath,getdirectory=True)
@@ -240,11 +240,11 @@ class GOTMWizard(commonqt.Wizard):
             curpath = root+'.nc'
         path = commonqt.browseForPath(self,curpath=curpath,save=True,filter='NetCDF files (*.nc);;All files (*.*)')
         if path is not None:
-            QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+            QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
             try:
                 res.saveNetCDF(path)
             finally:
-                QtGui.QApplication.restoreOverrideCursor()
+                QtWidgets.QApplication.restoreOverrideCursor()
 
 class PageIntroduction(commonqt.WizardPage):
     """First page in the GOTM-GUI Wizard.
@@ -259,9 +259,9 @@ class PageIntroduction(commonqt.WizardPage):
         self.owner.setProperty('scenario',None)
         self.owner.setProperty('result',None)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
 
-        self.label = QtGui.QLabel( \
+        self.label = QtWidgets.QLabel( \
             """<p>This is the Graphical User Interface to the <a href="http://www.gotm.net">General Ocean Turbulence Model (GOTM)</a>.</p>
 
 <p>GOTM is a one-dimensional water column model for natural (marine and limnic) waters based on the Reynolds-averaged Navier-Stokes equations. Vertical mixing is  included through an extensive library of state-of-the-art turbulence closure models. The hydrodynamics may be forced by wind stresses, surface heat and buoyancy fluxes, solar radiation and prescribed external and internal pressure gradients.</p>
@@ -309,20 +309,20 @@ class PageChooseAction(commonqt.WizardPage):
         pathnodes = self.parent().getSettings().root.getLocationMultiple(['Paths','RecentResults','Path'])
         mruresults = [p.getValue() for p in pathnodes]
 
-        self.label = QtGui.QLabel('What would you like to do?',self)
-        self.radioScenario = QtGui.QRadioButton('I want to create, view or edit a scenario.',self)
-        self.radioResult = QtGui.QRadioButton('I want to view or process the result of a previous simulation.',self)
+        self.label = QtWidgets.QLabel('What would you like to do?',self)
+        self.radioScenario = QtWidgets.QRadioButton('I want to create, view or edit a scenario.',self)
+        self.radioResult = QtWidgets.QRadioButton('I want to view or process the result of a previous simulation.',self)
         self.scenariowidget = scenariobuilder.ScenarioWidget(self,mrupaths=mruscenarios)
         self.scenariowidget.onCompleteStateChanged.connect(self.completeStateChanged)
         self.resultwidget = visualizer.OpenWidget(self,mrupaths=mruresults)
         self.resultwidget.onCompleteStateChanged.connect(self.completeStateChanged)
 
-        self.bngroup     = QtGui.QButtonGroup()
+        self.bngroup     = QtWidgets.QButtonGroup()
         self.bngroup.addButton(self.radioScenario,0)
         self.bngroup.addButton(self.radioResult,1)
         self.bngroup.buttonClicked.connect(self.onSourceChange)
         
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.addWidget(self.label,0,0,1,2)
         layout.addWidget(self.radioScenario,1,0,1,2)
         layout.addWidget(self.scenariowidget,2,1,1,1)
@@ -391,7 +391,7 @@ class PageChooseAction(commonqt.WizardPage):
             except Exception,e:
                 dialog.close()
                 if isinstance(e,AssertionError): raise
-                QtGui.QMessageBox.critical(self, 'Unable to obtain scenario', str(e), QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+                QtWidgets.QMessageBox.critical(self, 'Unable to obtain scenario', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 return False
 
             if simulate:
@@ -399,8 +399,8 @@ class PageChooseAction(commonqt.WizardPage):
                 errors = newscen.validate(callback=progslicer.getStepCallback(),repair=1)
                 dialog.close()
                 if len(errors)>0:
-                    res = QtGui.QMessageBox.warning(self,'Scenario is incomplete','The scenario cannot be simulated because of the following problems:\n\n%s\n\nDo you want to open the scenario for editing instead?' % '\n'.join(errors),QtGui.QMessageBox.Yes|QtGui.QMessageBox.No,QtGui.QMessageBox.Yes)
-                    if res==QtGui.QMessageBox.No: return False
+                    res = QtWidgets.QMessageBox.warning(self,'Scenario is incomplete','The scenario cannot be simulated because of the following problems:\n\n%s\n\nDo you want to open the scenario for editing instead?' % '\n'.join(errors),QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No,QtWidgets.QMessageBox.Yes)
+                    if res==QtWidgets.QMessageBox.No: return False
                     simulate = False
             else:
                 dialog.close()
@@ -420,7 +420,7 @@ class PageChooseAction(commonqt.WizardPage):
                 newresult = self.resultwidget.getResult()
             except Exception,e:
                 dialog.close()
-                QtGui.QMessageBox.critical(self, 'Unable to load result', str(e), QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+                QtWidgets.QMessageBox.critical(self, 'Unable to load result', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 return False
             self.owner.setProperty('mainaction','result')
             self.owner.setProperty('result', newresult)
@@ -461,11 +461,11 @@ def start(options,args):
         core.scenario.schemadir = options.schemadir
 
     # Create the application and enter the main message loop.
-    createQApp = QtGui.QApplication.startingUp()
+    createQApp = QtWidgets.QApplication.startingUp()
     if createQApp:
-        app = QtGui.QApplication([' '])
+        app = QtWidgets.QApplication([' '])
     else:
-        app = QtGui.qApp
+        app = QtWidgets.qApp
 
     app.setWindowIcon(QtGui.QIcon(os.path.join(core.common.getDataRoot(),'icon.png')))
 
@@ -506,7 +506,7 @@ def start(options,args):
         try:
             container = xmlstore.datatypes.DataContainer.fromPath(openpath)
         except Exception,e:
-            QtGui.QMessageBox.critical(wiz, 'Unable to load specified path', unicode(e), QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+            QtWidgets.QMessageBox.critical(wiz, 'Unable to load specified path', unicode(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
             container = None
 
         if container is None:
@@ -517,7 +517,7 @@ def start(options,args):
             try:
                 scen.loadAll(container)
             except Exception,e:
-                QtGui.QMessageBox.critical(wiz, 'Unable to load scenario', unicode(e), QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+                QtWidgets.QMessageBox.critical(wiz, 'Unable to load scenario', unicode(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 scen = None
         elif core.result.Result.canBeOpened(container):
             res = core.result.Result()
@@ -525,10 +525,10 @@ def start(options,args):
             try:
                 res.load(container)
             except Exception,e:
-                QtGui.QMessageBox.critical(wiz, 'Unable to load result', unicode(e), QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+                QtWidgets.QMessageBox.critical(wiz, 'Unable to load result', unicode(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 res = None
         else:
-            QtGui.QMessageBox.critical(wiz, 'Unable to open specified path', '"%s" is not a scenario or a result.' % openpath, QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+            QtWidgets.QMessageBox.critical(wiz, 'Unable to open specified path', '"%s" is not a scenario or a result.' % openpath, QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 
         if container is not None: container.release()
 

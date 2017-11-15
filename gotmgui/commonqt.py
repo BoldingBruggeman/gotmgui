@@ -6,7 +6,7 @@
 import re, os.path
 
 # Import third-party modules
-from xmlstore.qt_compat import QtGui,QtCore
+from xmlstore.qt_compat import QtGui, QtCore, QtWidgets
 
 # Import our own custom modules
 import xmlstore.util
@@ -20,7 +20,7 @@ def getRadioWidth():
     """
     global radiowidth
     if radiowidth is None:
-        radiowidth = QtGui.qApp.style().pixelMetric(QtGui.QStyle.PM_ExclusiveIndicatorWidth)
+        radiowidth = QtWidgets.qApp.style().pixelMetric(QtWidgets.QStyle.PM_ExclusiveIndicatorWidth)
     return radiowidth
     
 def getIcon(name):
@@ -36,13 +36,13 @@ def browseForPath(parent=None,curpath=None,getdirectory=False,save=False,filter=
     Supports automatic append of file extension based on chosen file type.
     """
     if curpath is None: curpath=''
-    if dlgoptions is None: dlgoptions = QtGui.QFileDialog.Option()
+    if dlgoptions is None: dlgoptions = QtWidgets.QFileDialog.Option()
     if getdirectory:
-        path = unicode(QtGui.QFileDialog.getExistingDirectory(parent,'',curpath))
+        path = unicode(QtWidgets.QFileDialog.getExistingDirectory(parent,'',curpath))
     elif save:
-        path,selfilt = map(unicode,QtGui.QFileDialog.getSaveFileNameAndFilter(parent,'',curpath,filter,None,dlgoptions))
+        path,selfilt = map(unicode,QtWidgets.QFileDialog.getSaveFileNameAndFilter(parent,'',curpath,filter,None,dlgoptions))
     else:
-        path,selfilt = map(unicode,QtGui.QFileDialog.getOpenFileNameAndFilter(parent,'',curpath,filter))
+        path,selfilt = map(unicode,QtWidgets.QFileDialog.getOpenFileNameAndFilter(parent,'',curpath,filter))
         
     # If the browse dialog was cancelled, just return.
     if path=='': return None
@@ -72,41 +72,41 @@ def browseForPath(parent=None,curpath=None,getdirectory=False,save=False,filter=
 # for path name, and a browse button.
 # =======================================================================
 
-class PathEditor(QtGui.QWidget):
+class PathEditor(QtWidgets.QWidget):
     onChanged = QtCore.Signal()
     editingFinished = QtCore.Signal()
 
     def __init__(self,parent=None,compact=False,header=None,getdirectory=False,save=False,mrupaths=[]):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
 
         if compact:
             text = '...'
         else:
             text = 'Browse...'
 
-        lo = QtGui.QHBoxLayout()
+        lo = QtWidgets.QHBoxLayout()
 
         if header is not None:
-            self.header = QtGui.QLabel(header,self)
+            self.header = QtWidgets.QLabel(header,self)
             lo.addWidget(self.header)
 
         if len(mrupaths)>0:
             # One or more recently used paths: use a combobox for the path.
-            self.editor = QtGui.QComboBox(self)
+            self.editor = QtWidgets.QComboBox(self)
             lo.addWidget(self.editor)
             self.editor.setEditable(True)
-            self.editor.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Fixed)
+            self.editor.setSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Fixed)
             for p in mrupaths: self.editor.addItem(p)
             self.editor.setEditText('')
             self.defaultpath = os.path.dirname(mrupaths[0])
             self.lineedit = self.editor.lineEdit()
         else:
             # No recently used paths: use a line edit control for the path.
-            self.lineedit = QtGui.QLineEdit(self)
+            self.lineedit = QtWidgets.QLineEdit(self)
             lo.addWidget(self.lineedit)
             self.defaultpath = None
 
-        self.browsebutton = QtGui.QPushButton(text,self)
+        self.browsebutton = QtWidgets.QPushButton(text,self)
         lo.addWidget(self.browsebutton)
         lo.setContentsMargins(0,0,0,0)
 
@@ -121,7 +121,7 @@ class PathEditor(QtGui.QWidget):
 
         self.filter=''
 
-        self.dlgoptions = QtGui.QFileDialog.DontConfirmOverwrite
+        self.dlgoptions = QtWidgets.QFileDialog.DontConfirmOverwrite
 
     def setPath(self,path):
         return self.lineedit.setText(path)
@@ -153,40 +153,40 @@ class PathEditor(QtGui.QWidget):
 #   pages must inherit from class WizardPage below.
 # =======================================================================
 
-class Wizard(QtGui.QDialog):
+class Wizard(QtWidgets.QDialog):
     
     def __init__(self,parent=None,sequence=None,closebutton=False,headerlogo=None,allowfinish=False):
-        QtGui.QDialog.__init__(self, parent, QtCore.Qt.Window|QtCore.Qt.WindowContextHelpButtonHint|QtCore.Qt.WindowMinMaxButtonsHint)
+        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.Window|QtCore.Qt.WindowContextHelpButtonHint|QtCore.Qt.WindowMinMaxButtonsHint)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0,0,0,0)
         
         if headerlogo is not None:
             self.pm = QtGui.QPixmap(headerlogo,'PNG')
-            self.piclabel = QtGui.QLabel(self)
+            self.piclabel = QtWidgets.QLabel(self)
             self.piclabel.setPixmap(self.pm)
             #self.piclabel.setScaledContents(True)
             self.piclabel.setMinimumWidth(20)
             layout.addWidget(self.piclabel)
 
-        self.bnlayout = QtGui.QHBoxLayout()
+        self.bnlayout = QtWidgets.QHBoxLayout()
         self.bnlayout.addStretch()
 
-        self.bnHome = QtGui.QPushButton(getIcon('gohome.png'),'&Home',self)
+        self.bnHome = QtWidgets.QPushButton(getIcon('gohome.png'),'&Home',self)
         self.bnHome.clicked.connect(self.onHome)
         self.bnlayout.addWidget(self.bnHome)
 
-        self.bnBack = QtGui.QPushButton(getIcon('back.png'),'&Back',self)
+        self.bnBack = QtWidgets.QPushButton(getIcon('back.png'),'&Back',self)
         self.bnBack.clicked.connect(self.onBack)
         self.bnlayout.addWidget(self.bnBack)
 
-        self.bnNext = QtGui.QPushButton(getIcon('next.png'),'&Next',self)
+        self.bnNext = QtWidgets.QPushButton(getIcon('next.png'),'&Next',self)
         self.bnNext.clicked.connect(self.onNext)
         self.bnlayout.addWidget(self.bnNext)
 
         if closebutton:
             import xmlplot.gui_qt4
-            self.bnClose = QtGui.QPushButton(xmlplot.gui_qt4.getIcon('exit.png'),'&Close',self)
+            self.bnClose = QtWidgets.QPushButton(xmlplot.gui_qt4.getIcon('exit.png'),'&Close',self)
             self.bnClose.clicked.connect(self.accept)
             self.bnlayout.addWidget(self.bnClose)
 
@@ -213,7 +213,7 @@ class Wizard(QtGui.QDialog):
             try:
                 self.settings.load()
             except core.settings.LoadException,e:
-                QtGui.QMessageBox.warning(self, 'Unable to load settings', str(e))
+                QtWidgets.QMessageBox.warning(self, 'Unable to load settings', str(e))
         return self.settings
 
     def getProperty(self,propertyname):
@@ -245,7 +245,7 @@ class Wizard(QtGui.QDialog):
                 pass
         if self.currentpage is not None:
             self.currentpage.destroy()
-        QtGui.QDialog.destroy(self,destroyWindow,destroySubWindows)
+        QtWidgets.QDialog.destroy(self,destroyWindow,destroySubWindows)
 
     def setSequence(self,sequence):
         self.sequence = sequence
@@ -301,7 +301,7 @@ class Wizard(QtGui.QDialog):
         self.busy = False
 
     def switchPage(self,newpage):
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
         layout = self.layout()
         if self.currentpage is not None:
             self.currentpage.hide()
@@ -316,7 +316,7 @@ class Wizard(QtGui.QDialog):
         self.bnHome.setEnabled(cangoback)
         self.bnBack.setEnabled(cangoback)
         self.onCompleteStateChanged()
-        QtGui.QApplication.restoreOverrideCursor()
+        QtWidgets.QApplication.restoreOverrideCursor()
 
     def onCompleteStateChanged(self):
         curpage = self.currentpage
@@ -328,11 +328,11 @@ class Wizard(QtGui.QDialog):
 #   based on Qt example of a complex wizard
 # =======================================================================
 
-class WizardPage(QtGui.QWidget):
+class WizardPage(QtWidgets.QWidget):
     onCompleteStateChanged = QtCore.Signal()
 
     def __init__(self,parent=None):
-        QtGui.QWidget.__init__(self,parent)
+        QtWidgets.QWidget.__init__(self,parent)
         self.owner = parent
         self.hide()
 
@@ -349,12 +349,12 @@ class WizardPage(QtGui.QWidget):
         return False
 
     def createHeader(self,title,description):
-        label = QtGui.QLabel('<span style="font-size:large;font-weight:bold;">%s</span><hr>%s' % (title,description),self)
+        label = QtWidgets.QLabel('<span style="font-size:large;font-weight:bold;">%s</span><hr>%s' % (title,description),self)
         label.setWordWrap(True)
         return label
         
     def destroy(self,destroyWindow = True,destroySubWindows = True):
-        QtGui.QWidget.destroy(self,destroyWindow,destroySubWindows)
+        QtWidgets.QWidget.destroy(self,destroyWindow,destroySubWindows)
 
 class WizardDummyPage(WizardPage):
     def doNotShow(self):
@@ -439,15 +439,15 @@ class WizardFork(WizardSequence):
 # (2) a string describing the task currently being performed.
 # =======================================================================
 
-class ProgressDialog(QtGui.QProgressDialog):
+class ProgressDialog(QtWidgets.QProgressDialog):
     def __init__(self,parent=None,minimumduration=500,title=None,suppressstatus=False):
-        QtGui.QProgressDialog.__init__(self,'',None,0,0,parent,QtCore.Qt.Dialog|QtCore.Qt.CustomizeWindowHint|QtCore.Qt.WindowTitleHint|QtCore.Qt.MSWindowsFixedSizeDialogHint)
+        QtWidgets.QProgressDialog.__init__(self,'',None,0,0,parent,QtCore.Qt.Dialog|QtCore.Qt.CustomizeWindowHint|QtCore.Qt.WindowTitleHint|QtCore.Qt.MSWindowsFixedSizeDialogHint)
         self.setModal(True)
         self.setMinimumDuration(minimumduration)
         self.setRange(0,0)
         self.suppressstatus = suppressstatus
         if title is not None: self.setWindowTitle(title)
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
             
     def onProgressed(self,progress,status):
         if progress is not None:
@@ -456,9 +456,9 @@ class ProgressDialog(QtGui.QProgressDialog):
         elif progressdialog.maximum()!=0:
             self.setValue(0)
         if not self.suppressstatus: self.setLabelText(status)
-        QtGui.qApp.processEvents()
+        QtWidgets.qApp.processEvents()
 
     def close(self):
-        QtGui.QApplication.restoreOverrideCursor()
-        QtGui.QProgressDialog.close(self)
+        QtWidgets.QApplication.restoreOverrideCursor()
+        QtWidgets.QProgressDialog.close(self)
         

@@ -2,7 +2,7 @@
 
 #$Id: visualizer.py,v 1.45 2010-07-19 13:45:50 jorn Exp $
 
-from xmlstore.qt_compat import QtGui,QtCore,qt4_backend,qt4_backend_version
+from xmlstore.qt_compat import QtGui, QtCore, QtWidgets, qt4_backend, qt4_backend_version
 
 import xmlstore.gui_qt4
 import core.common, core.result, core.report, commonqt
@@ -41,17 +41,17 @@ def loadResult(path):
 
     return res
 
-class OpenWidget(QtGui.QWidget):
+class OpenWidget(QtWidgets.QWidget):
 
     onCompleteStateChanged = QtCore.Signal()
     
     def __init__(self,parent=None,mrupaths=[]):
-        QtGui.QWidget.__init__(self,parent)
+        QtWidgets.QWidget.__init__(self,parent)
 
         self.pathOpen = commonqt.PathEditor(self,header='File to open: ',mrupaths=mrupaths)
         self.pathOpen.filter = 'GOTM result files (*.gotmresult);;NetCDF files (*.nc);;All files (*.*)'
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.pathOpen)
         layout.setContentsMargins(0,0,0,0)
         self.setLayout(layout)
@@ -74,10 +74,10 @@ class PageOpen(commonqt.WizardPage):
     def __init__(self,parent=None):
         commonqt.WizardPage.__init__(self, parent)
 
-        self.label = QtGui.QLabel('Specify the location of the result you want to view.',self)
+        self.label = QtWidgets.QLabel('Specify the location of the result you want to view.',self)
         self.openwidget = OpenWidget(self)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.label)
         layout.addWidget(self.openwidget)
         layout.addStretch()
@@ -92,15 +92,15 @@ class PageOpen(commonqt.WizardPage):
         try:
             res = self.openwidget.getResult()
         except Exception,e:
-            QtGui.QMessageBox.critical(self, 'Unable to load result', str(e), QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+            QtWidgets.QMessageBox.critical(self, 'Unable to load result', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
             return False
         self.owner.setProperty('result',res)
         self.owner.setProperty('scenario',res.scenario.addref())
         return True
 
-class VisualizeWidget(QtGui.QWidget):
+class VisualizeWidget(QtWidgets.QWidget):
     def __init__(self,result,parent=None):
-        QtGui.QWidget.__init__(self,parent)
+        QtWidgets.QWidget.__init__(self,parent)
 
         self.varpath = None
         self.varname = None
@@ -111,7 +111,7 @@ class VisualizeWidget(QtGui.QWidget):
 
         self.treeVariables = xmlstore.gui_qt4.ExtendedTreeView(self)
         self.treeVariables.header().hide()
-        self.treeVariables.setSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
+        self.treeVariables.setSizePolicy(QtWidgets.QSizePolicy.Minimum,QtWidgets.QSizePolicy.Expanding)
         self.treeVariables.setMaximumWidth(250)
         self.treeVariables.setModel(self.model)
         self.treeVariables.selectionModel().selectionChanged.connect(self.OnVarSelected)
@@ -119,9 +119,9 @@ class VisualizeWidget(QtGui.QWidget):
         import xmlplot.gui_qt4
         self.figurepanel = xmlplot.gui_qt4.FigurePanel(self,reportnodata=False)
 
-        self.label = QtGui.QLabel('Here you can view the results of the simulation. Please choose a variable to be plotted from the menu.',self)
+        self.label = QtWidgets.QLabel('Here you can view the results of the simulation. Please choose a variable to be plotted from the menu.',self)
 
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.addWidget(self.label,0,0,1,2)
         layout.addWidget(self.treeVariables,1,0)
         layout.addWidget(self.figurepanel,1,1)
@@ -140,7 +140,7 @@ class VisualizeWidget(QtGui.QWidget):
         if node.hasChildren(): return
         
         # Show wait cursor
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
         
         try:
             # Save settings for currently shown figure
@@ -162,7 +162,7 @@ class VisualizeWidget(QtGui.QWidget):
             self.figurepanel.figure.setUpdating(True)
         finally:
             # Restore original cursor
-            QtGui.QApplication.restoreOverrideCursor()
+            QtWidgets.QApplication.restoreOverrideCursor()
 
     def destroy(self,destroyWindow = True,destroySubWindows = True):
         self.figurepanel.destroy()
@@ -178,7 +178,7 @@ class PageVisualize(commonqt.WizardPage):
         self.result = parent.getProperty('result')
         self.vizwidget = VisualizeWidget(self.result,parent=self)
         
-        layout = QtGui.QHBoxLayout()
+        layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0,0,0,0)
         layout.addWidget(self.vizwidget)
         self.setLayout(layout)
@@ -197,12 +197,12 @@ class PageVisualize(commonqt.WizardPage):
         self.vizwidget.destroy()
         commonqt.WizardPage.destroy(self,destroyWindow,destroySubWindows)
 
-class ConfigureReportWidget(QtGui.QWidget):
+class ConfigureReportWidget(QtWidgets.QWidget):
     onCompleteStateChanged = QtCore.Signal()
     onReportProgressed = QtCore.Signal(float,str)
 
     def __init__(self,parent,result,rep):
-        QtGui.QWidget.__init__(self,parent)
+        QtWidgets.QWidget.__init__(self,parent)
         
         self.result = result
         self.report = rep
@@ -211,12 +211,12 @@ class ConfigureReportWidget(QtGui.QWidget):
 
         reportname2path = core.report.Report.getTemplates()
 
-        self.labTemplates = QtGui.QLabel('Report template:',self)
-        self.comboTemplates = QtGui.QComboBox(parent)
+        self.labTemplates = QtWidgets.QLabel('Report template:',self)
+        self.comboTemplates = QtWidgets.QComboBox(parent)
         for (name,path) in reportname2path.items():
             self.comboTemplates.addItem(name,path)
         
-        self.labOutput = QtGui.QLabel('Directory to save to:',self)
+        self.labOutput = QtWidgets.QLabel('Directory to save to:',self)
         self.pathOutput = commonqt.PathEditor(self,getdirectory=True)
         
         # Default report directory: result or scenario directory
@@ -225,7 +225,7 @@ class ConfigureReportWidget(QtGui.QWidget):
         elif self.result.scenario is not None and self.result.scenario.path is not None:
             self.pathOutput.defaultpath = os.path.dirname(self.result.scenario.path)
 
-        self.labVariables = QtGui.QLabel('Included variables:',self)
+        self.labVariables = QtWidgets.QLabel('Included variables:',self)
         self.treestore = self.result.getVariableTree(plottableonly=True)
         
         # Prepare selection based on report settings
@@ -238,7 +238,7 @@ class ConfigureReportWidget(QtGui.QWidget):
         self.treeVariables = xmlstore.gui_qt4.ExtendedTreeView(self)
         self.treeVariables.header().hide()
         self.treeVariables.setModel(self.model)
-        self.treeVariables.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        self.treeVariables.setSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Expanding)
 
         # Create labels+editors for figure settings
         editWidth = self.factory.createEditor('Figures/Width',self)
@@ -246,7 +246,7 @@ class ConfigureReportWidget(QtGui.QWidget):
         editDpi = self.factory.createEditor('Figures/Resolution',self)
         editFontScaling = self.factory.createEditor('Figures/FontScaling',self)
         
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.addWidget(self.labOutput,     0,0)
         layout.addWidget(self.pathOutput,    0,1)
         layout.addWidget(self.labTemplates,  1,0)
@@ -254,8 +254,8 @@ class ConfigureReportWidget(QtGui.QWidget):
         layout.addWidget(self.labVariables,  2,0,QtCore.Qt.AlignTop)
         layout.addWidget(self.treeVariables, 2,1)
 
-        self.figbox = QtGui.QGroupBox('Figure settings',self)
-        figlayout = QtGui.QGridLayout()
+        self.figbox = QtWidgets.QGroupBox('Figure settings',self)
+        figlayout = QtWidgets.QGridLayout()
         editWidth.addToGridLayout(figlayout,0,0)
         editHeight.addToGridLayout(figlayout)
         editDpi.addToGridLayout(figlayout)
@@ -283,8 +283,8 @@ class ConfigureReportWidget(QtGui.QWidget):
 
         # Warn if the target directory is not empty.
         if os.path.isdir(outputpath) and len(os.listdir(outputpath))>0:
-            ret = QtGui.QMessageBox.warning(self,'Directory is not empty','The specified target directory ("%s") contains one or more files, which may be overwritten. Do you want to continue?' % outputpath,QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
-            if ret==QtGui.QMessageBox.No: return False
+            ret = QtWidgets.QMessageBox.warning(self,'Directory is not empty','The specified target directory ("%s") contains one or more files, which may be overwritten. Do you want to continue?' % outputpath,QtWidgets.QMessageBox.Yes,QtWidgets.QMessageBox.No)
+            if ret==QtWidgets.QMessageBox.No: return False
 
         # Update the list of selected variables.
         selroot = self.report.store['Figures/Selection']
@@ -298,11 +298,11 @@ class ConfigureReportWidget(QtGui.QWidget):
         self.factory.updateStore()
 
         # Generate the report and display the wait cursor while doing so.
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
         try:
             self.report.generate(self.result,outputpath,templatepath,callback=self.onReportProgressed.emit)
         finally:
-            QtGui.QApplication.restoreOverrideCursor()
+            QtWidgets.QApplication.restoreOverrideCursor()
 
         return True
 
@@ -311,7 +311,7 @@ class ConfigureReportWidget(QtGui.QWidget):
         self.treeVariables.setModel(None)
         self.model.unlink()
         self.treestore.release()
-        QtGui.QWidget.destroy(self,destroyWindow,destroySubWindows)
+        QtWidgets.QWidget.destroy(self,destroyWindow,destroySubWindows)
         
 class PageReportGenerator(commonqt.WizardPage):
     def __init__(self,parent=None):
@@ -326,18 +326,18 @@ class PageReportGenerator(commonqt.WizardPage):
         # Copy report settings from result.
         self.report.store.root.copyFrom(self.result.store['ReportSettings'],replace=True)
 
-        self.label = QtGui.QLabel('You can generate a report that describes the scenario and the simulation results. A report consists of an HTML file, associated files (CSS, javascript) and image files for all figures.',self)
+        self.label = QtWidgets.QLabel('You can generate a report that describes the scenario and the simulation results. A report consists of an HTML file, associated files (CSS, javascript) and image files for all figures.',self)
         self.label.setWordWrap(True)
-        self.checkReport = QtGui.QCheckBox('Yes, I want to generate a report.', parent)
+        self.checkReport = QtWidgets.QCheckBox('Yes, I want to generate a report.', parent)
         self.reportwidget = ConfigureReportWidget(self,self.result,self.report)
 
-        self.progressbar = QtGui.QProgressBar(self)
+        self.progressbar = QtWidgets.QProgressBar(self)
         self.progressbar.setRange(0,100)
-        self.labStatus = QtGui.QLabel(self)
+        self.labStatus = QtWidgets.QLabel(self)
         self.progressbar.hide()
         self.labStatus.hide()
 
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.addWidget(self.label,0,0,1,2)
         layout.addWidget(self.checkReport,1,0,1,2)
         layout.addWidget(self.reportwidget,2,1,1,1)
@@ -383,7 +383,7 @@ class PageReportGenerator(commonqt.WizardPage):
             
         self.progressbar.setValue(round(progressed*100))
         self.labStatus.setText(status)
-        QtGui.qApp.processEvents()
+        QtWidgets.qApp.processEvents()
 
     def destroy(self,destroyWindow = True,destroySubWindows = True):
         self.report.release()
@@ -397,22 +397,22 @@ class PageSave(commonqt.WizardPage):
 
         self.result = parent.getProperty('result')
 
-        self.label = QtGui.QLabel('Do you want to save the result of your simulation?',self)
-        self.bngroup     = QtGui.QButtonGroup()
-        self.radioNoSave = QtGui.QRadioButton('No, I do not want to save the result.', parent)
-        self.radioSave   = QtGui.QRadioButton('Yes, I want to save the result to file.', parent)
+        self.label = QtWidgets.QLabel('Do you want to save the result of your simulation?',self)
+        self.bngroup     = QtWidgets.QButtonGroup()
+        self.radioNoSave = QtWidgets.QRadioButton('No, I do not want to save the result.', parent)
+        self.radioSave   = QtWidgets.QRadioButton('Yes, I want to save the result to file.', parent)
 
         self.pathSave = commonqt.PathEditor(self,header='File to save to: ',save=True)
         self.pathSave.filter = 'GOTM result files (*.gotmresult);;All files (*.*)'
         if self.result.path is not None: self.pathSave.setPath(self.result.path)
 
-        self.checkboxAddFigures = QtGui.QCheckBox('Also save my figure settings.',self)
+        self.checkboxAddFigures = QtWidgets.QCheckBox('Also save my figure settings.',self)
         self.checkboxAddFigures.setChecked(True)
 
         self.bngroup.addButton(self.radioNoSave, 0)
         self.bngroup.addButton(self.radioSave,   1)
 
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.addWidget(self.label,      0,0,1,2)
         layout.addWidget(self.radioNoSave,1,0,1,2)
         layout.addWidget(self.radioSave,  2,0,1,2)
@@ -450,8 +450,8 @@ class PageSave(commonqt.WizardPage):
         if checkedid==1:
             targetpath = self.pathSave.path()
             if os.path.isfile(targetpath):
-                ret = QtGui.QMessageBox.warning(self, 'Overwrite existing file?', 'There already exists a file at the specified location. Overwrite it?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-                if ret==QtGui.QMessageBox.No:
+                ret = QtWidgets.QMessageBox.warning(self, 'Overwrite existing file?', 'There already exists a file at the specified location. Overwrite it?', QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+                if ret==QtWidgets.QMessageBox.No:
                     return False
             dialog = commonqt.ProgressDialog(self,title='Saving...',suppressstatus=True)
             try:
@@ -462,7 +462,7 @@ class PageSave(commonqt.WizardPage):
                 self.owner.settings.addUniqueValue('Paths/RecentResults','Path',targetpath)
             except Exception,e:
                 print e
-                QtGui.QMessageBox.critical(self, 'Unable to save result', str(e), QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+                QtWidgets.QMessageBox.critical(self, 'Unable to save result', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 return False
         return True
 
@@ -474,9 +474,9 @@ class PageFinal(commonqt.WizardPage):
     def __init__(self,parent=None):
         commonqt.WizardPage.__init__(self, parent)
 
-        self.label = QtGui.QLabel('You are now done. Click the "Home" button below to work with another scenario or result.',self)
+        self.label = QtWidgets.QLabel('You are now done. Click the "Home" button below to work with another scenario or result.',self)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.label)
         layout.addStretch()
         self.setLayout(layout)
@@ -486,22 +486,22 @@ class PageFinal(commonqt.WizardPage):
 
 def visualizeResult(result):
     # Create the application and enter the main message loop.
-    createQApp = QtGui.QApplication.startingUp()
+    createQApp = QtWidgets.QApplication.startingUp()
     if createQApp:
-        app = QtGui.QApplication([' '])
+        app = QtWidgets.QApplication([' '])
     else:
-        app = QtGui.qApp
+        app = QtWidgets.qApp
 
-    dialog = QtGui.QDialog()
+    dialog = QtWidgets.QDialog()
 
     visualizer = VisualizeWidget(result,parent=dialog)
 
     pm = QtGui.QPixmap(os.path.join(core.common.getDataRoot(),'logo.png'),'PNG')
-    piclabel = QtGui.QLabel(dialog)
+    piclabel = QtWidgets.QLabel(dialog)
     piclabel.setPixmap(pm)
     piclabel.setMinimumWidth(20)
 
-    layout = QtGui.QVBoxLayout()
+    layout = QtWidgets.QVBoxLayout()
     layout.addWidget(piclabel)
     layout.addWidget(visualizer)
     layout.setSpacing(0)
@@ -521,11 +521,11 @@ def main():
     print 'xml version: '+xml.__version__
 
     # Create the application and enter the main message loop.
-    createQApp = QtGui.QApplication.startingUp()
+    createQApp = QtWidgets.QApplication.startingUp()
     if createQApp:
-        app = QtGui.QApplication([' '])
+        app = QtWidgets.QApplication([' '])
     else:
-        app = QtGui.qApp
+        app = QtWidgets.qApp
 
     # Create wizard dialog
     wiz = commonqt.Wizard()
@@ -540,7 +540,7 @@ def main():
         try:
             res = loadResult(sys.argv[1])
         except Exception,e:
-            QtGui.QMessageBox.critical(self, 'Unable to load result', unicode(e), QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+            QtWidgets.QMessageBox.critical(self, 'Unable to load result', unicode(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
         if res is not None:
             seq.pop(0)
             wiz.setProperty('result',res)

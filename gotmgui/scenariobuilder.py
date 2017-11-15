@@ -2,32 +2,32 @@
 
 #$Id: scenariobuilder.py,v 1.56 2010-07-19 13:50:21 jorn Exp $
 
-from xmlstore.qt_compat import QtGui,QtCore,qt4_backend,qt4_backend_version
+from xmlstore.qt_compat import QtGui, QtCore, QtWidgets, qt4_backend, qt4_backend_version
 
 # Import modules from standard Python library
 import sys,xml, os.path
 
 import core.scenario, core.result, xmlstore.util, xmlstore.gui_qt4, commonqt
 
-class ScenarioWidget(QtGui.QWidget):
+class ScenarioWidget(QtWidgets.QWidget):
 
     onCompleteStateChanged = QtCore.Signal()
 
     def __init__(self,parent=None,mrupaths=[]):
-        QtGui.QWidget.__init__(self,parent)
+        QtWidgets.QWidget.__init__(self,parent)
 
-        self.bngroup      = QtGui.QButtonGroup()
-        self.radioNew     = QtGui.QRadioButton('Create a new scenario.',self)
-        self.radioOpen    = QtGui.QRadioButton('Open an existing scenario.',self)
-        self.radioImport1 = QtGui.QRadioButton('Import a namelist-based scenario from an existing directory.',self)
-        self.radioImport2 = QtGui.QRadioButton('Import a namelist-based scenario from an archive.',self)
+        self.bngroup      = QtWidgets.QButtonGroup()
+        self.radioNew     = QtWidgets.QRadioButton('Create a new scenario.',self)
+        self.radioOpen    = QtWidgets.QRadioButton('Open an existing scenario.',self)
+        self.radioImport1 = QtWidgets.QRadioButton('Import a namelist-based scenario from an existing directory.',self)
+        self.radioImport2 = QtWidgets.QRadioButton('Import a namelist-based scenario from an archive.',self)
 
-        #self.labTemplate = QtGui.QLabel('Template:',self)
+        #self.labTemplate = QtWidgets.QLabel('Template:',self)
         #default2path = core.scenario.Scenario.getDefaultValues()
-        #self.comboTemplates = QtGui.QComboBox(parent)
+        #self.comboTemplates = QtWidgets.QComboBox(parent)
         #for (name,path) in default2path.items():
         #    self.comboTemplates.addItem(name,name)
-        #self.templatelayout = QtGui.QHBoxLayout()
+        #self.templatelayout = QtWidgets.QHBoxLayout()
         #self.templatelayout.addWidget(self.labTemplate)
         #self.templatelayout.addWidget(self.comboTemplates,1)
         #self.templatelayout.addStretch()
@@ -44,7 +44,7 @@ class ScenarioWidget(QtGui.QWidget):
         self.bngroup.addButton(self.radioImport1,2)
         self.bngroup.addButton(self.radioImport2,3)
 
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.addWidget(self.radioNew,       0,0,1,3)
         #layout.addLayout(self.templatelayout, 1,1)
         layout.addWidget(self.radioOpen,      2,0,1,3)
@@ -54,7 +54,7 @@ class ScenarioWidget(QtGui.QWidget):
         layout.addWidget(self.radioImport2,   6,0,1,3)
         layout.addWidget(self.pathImport2,    7,1,1,2)
 
-        self.checkSkipToSimulation = QtGui.QCheckBox('Simulate the scenario without further configuration.',self)
+        self.checkSkipToSimulation = QtWidgets.QCheckBox('Simulate the scenario without further configuration.',self)
         layout.addWidget(self.checkSkipToSimulation,8,0,1,3)
 
         layout.setColumnStretch(2,1)
@@ -102,7 +102,7 @@ class ScenarioWidget(QtGui.QWidget):
 
     def getScenario(self,callback=None,completecallback=None):
         if not self.isComplete(): return None
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+        QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
         try:
             checkedid = self.bngroup.checkedId()
             if   checkedid==0:
@@ -148,7 +148,7 @@ class ScenarioWidget(QtGui.QWidget):
                     raise Exception('Cannot parse namelist files. Error: '+str(e))
 
         finally:
-            QtGui.QApplication.restoreOverrideCursor()
+            QtWidgets.QApplication.restoreOverrideCursor()
             
         if checkedid!=0:
             # We have loaded a scenario from file. Look for empty nodes and reset these to their defaults.
@@ -161,7 +161,7 @@ class ScenarioWidget(QtGui.QWidget):
             emptycount = len(emptynodes)
             if emptycount>0:
                 if completecallback is not None: completecallback()
-                QtGui.QMessageBox.information(self,'Scenario is incomplete','In this scenario the following %i variables do not have a value:\n\n%s\n\nThese variables will be set to their default value.' % (emptycount,'\n'.join(['/'.join(n.location) for n in emptynodes])),QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self,'Scenario is incomplete','In this scenario the following %i variables do not have a value:\n\n%s\n\nThese variables will be set to their default value.' % (emptycount,'\n'.join(['/'.join(n.location) for n in emptynodes])),QtWidgets.QMessageBox.Ok)
                 scen.changed = True
             
         return scen
@@ -180,11 +180,11 @@ class PageOpen(commonqt.WizardPage):
     def __init__(self,parent=None):
         commonqt.WizardPage.__init__(self, parent)
 
-        self.label = QtGui.QLabel('How do you want to obtain a scenario?',self)
+        self.label = QtWidgets.QLabel('How do you want to obtain a scenario?',self)
         self.scenariowidget = ScenarioWidget(self)
         self.scenariowidget.onCompleteStateChanged.connect(self.completeStateChanged)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.label)
         layout.addWidget(self.scenariowidget)
         layout.addStretch()
@@ -198,7 +198,7 @@ class PageOpen(commonqt.WizardPage):
         try:
             newscen = self.scenariowidget.getScenario(callback=dialog.onProgressed,completecallback=dialog.close)
         except Exception,e:
-            QtGui.QMessageBox.critical(self, 'Unable to obtain scenario', str(e), QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+            QtWidgets.QMessageBox.critical(self, 'Unable to obtain scenario', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
             dialog.close()
             return False
         self.owner.setProperty('result',None)
@@ -230,7 +230,7 @@ class ScenarioPage(commonqt.WizardPage):
             if len(errors)>0:
                 msg = '\n'.join(errors)
                 if len(errors)>1: msg = 'The following problems remain:\n\n%s' % msg
-                QtGui.QMessageBox.critical(self,'Scenario has not been configured correctly',msg,QtGui.QMessageBox.Ok,QtGui.QMessageBox.NoButton)
+                QtWidgets.QMessageBox.critical(self,'Scenario has not been configured correctly',msg,QtWidgets.QMessageBox.Ok,QtWidgets.QMessageBox.NoButton)
                 return False
         else:
             self.scenario.clearValidationHistory(editednodes)
@@ -249,7 +249,7 @@ class PageLocation(ScenarioPage):
     def __init__(self,parent=None):
         ScenarioPage.__init__(self, parent)
         
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.setSpacing(25)
 
         self.title = self.createHeader('Simulated location and period','Here you specify the geographic location and time period that you want to simulate. Optionally you can provide a title for the simulation and location.')
@@ -259,7 +259,7 @@ class PageLocation(ScenarioPage):
 
         editGeneral = self.factory.createEditor('title',self,groupbox=True)
         groupboxGeneral = editGeneral.editor
-        layoutTitle = QtGui.QHBoxLayout()
+        layoutTitle = QtWidgets.QHBoxLayout()
         editTitle = self.factory.createEditor('title',self)
         editTitle.addToBoxLayout(layoutTitle,addstretch=False,unit=False)
         groupboxGeneral.setLayout(layoutTitle)
@@ -270,7 +270,7 @@ class PageLocation(ScenarioPage):
         editStation = self.factory.createEditor('station',self,groupbox=True)
         groupboxLocation = editStation.editor
 
-        layoutLocation = QtGui.QGridLayout()
+        layoutLocation = QtWidgets.QGridLayout()
         editName      = self.factory.createEditor('station/name',     self)
         editLongitude = self.factory.createEditor('station/longitude',self)
         editLatitude  = self.factory.createEditor('station/latitude', self)
@@ -289,7 +289,7 @@ class PageLocation(ScenarioPage):
         editPeriod = self.factory.createEditor('time',self,groupbox=True)
         groupboxPeriod = editPeriod.editor
 
-        layoutPeriod = QtGui.QGridLayout()
+        layoutPeriod = QtWidgets.QGridLayout()
         editStart = self.factory.createEditor('time/start',self)
         editStop  = self.factory.createEditor('time/stop' ,self)
         editStart.addToGridLayout(layoutPeriod)
@@ -305,8 +305,8 @@ class PageLocation(ScenarioPage):
         
     def saveData(self,mustbevalid):
         if self.scenario.hasChanged() and not mustbevalid:
-            res = QtGui.QMessageBox.warning(self,'Leaving scenario editor','All changes to your scenario will be lost. Do you want to continue?',QtGui.QMessageBox.Yes|QtGui.QMessageBox.No,QtGui.QMessageBox.No)
-            if res==QtGui.QMessageBox.No: return False
+            res = QtWidgets.QMessageBox.warning(self,'Leaving scenario editor','All changes to your scenario will be lost. Do you want to continue?',QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No,QtWidgets.QMessageBox.No)
+            if res==QtWidgets.QMessageBox.No: return False
 
         return ScenarioPage.saveData(self,mustbevalid)
 
@@ -315,7 +315,7 @@ class PageDiscretization(ScenarioPage):
     def __init__(self,parent=None):
         ScenarioPage.__init__(self, parent)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.setSpacing(25)
 
         self.title = self.createHeader('Discretization of space and time','Here you specify how the water column and the time period are discretized. Generally this involves a balance between accuracy and simulation time.')
@@ -323,7 +323,7 @@ class PageDiscretization(ScenarioPage):
 
         editColumn = self.factory.createEditor('grid',self,groupbox=True)
 
-        layoutGrid = QtGui.QGridLayout()
+        layoutGrid = QtWidgets.QGridLayout()
 
         # Create controls for grid layout.
         editGridMethod = self.factory.createEditor('grid/grid_method',self,selectwithradio=True)
@@ -350,7 +350,7 @@ class PageDiscretization(ScenarioPage):
 
         editTime = self.factory.createEditor('timeintegration',self,groupbox=True)
         
-        layoutTime = QtGui.QGridLayout()
+        layoutTime = QtWidgets.QGridLayout()
         editTimeStep = self.factory.createEditor('timeintegration/dt',self)
         editOutputStep = self.factory.createEditor('output/dtsave',self)
         editTimeStep.addToGridLayout(layoutTime)
@@ -368,14 +368,14 @@ class PageSalinity(ScenarioPage):
     def __init__(self,parent=None):
         ScenarioPage.__init__(self, parent)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
 
         self.title = self.createHeader('Salinity observations','Here you can provide observations on vertical salinity profiles. These are used to initialize the column, and optionally to relax model results to.')
         layout.addWidget(self.title)
         layout.addSpacing(20)
 
         # Create main layout
-        layoutSalinity = QtGui.QGridLayout()
+        layoutSalinity = QtWidgets.QGridLayout()
         
         # Create button group for the salinity option, and an explanatory label.
         editSalinity = self.factory.createEditor('obs/sprofile',self,selectwithradio=True)
@@ -404,7 +404,7 @@ class PageSalinity(ScenarioPage):
         layoutSalinity.addWidget(editSalinity.editor.buttonFromValue(11),    2,0,1,2)
 
         # Add controls to edit constant salinity.
-        layoutConstant = QtGui.QGridLayout()
+        layoutConstant = QtWidgets.QGridLayout()
         editSalinityConstant.addToGridLayout(layoutConstant)
         layoutConstant.setColumnStretch(3,1)
         layoutSalinity.addLayout(layoutConstant,3,1)
@@ -413,7 +413,7 @@ class PageSalinity(ScenarioPage):
         layoutSalinity.addWidget(editSalinity.editor.buttonFromValue(12),    4,0,1,2)
         
         # Add controls to edit two-layer salinity.
-        layoutLayer = QtGui.QGridLayout()
+        layoutLayer = QtWidgets.QGridLayout()
         editSalinityUpperThickness.addToGridLayout(layoutLayer)
         editSalinityUpper.addToGridLayout(layoutLayer)
         editSalinityLowerThickness.addToGridLayout(layoutLayer)
@@ -425,7 +425,7 @@ class PageSalinity(ScenarioPage):
         layoutSalinity.addWidget(editSalinity.editor.buttonFromValue(13),    6,0,1,2)
 
         # Add controls to edit stably stratified salinity.
-        layoutNSquare = QtGui.QGridLayout()
+        layoutNSquare = QtWidgets.QGridLayout()
         editSalinitySurface.addToGridLayout(layoutNSquare)
         editSalinityNSquare.addToGridLayout(layoutNSquare)
         layoutNSquare.setColumnStretch(3,1)
@@ -435,7 +435,7 @@ class PageSalinity(ScenarioPage):
         layoutSalinity.addWidget(editSalinity.editor.buttonFromValue(2),     8,0,1,2)
         
         # Add control to choose custom salinities.
-        layoutFile = QtGui.QHBoxLayout()
+        layoutFile = QtWidgets.QHBoxLayout()
         editSalinityFile.addToBoxLayout(layoutFile,label=False,unit=False)
         layoutFile.addStretch()
         layoutSalinity.addLayout(layoutFile,9,1)
@@ -445,7 +445,7 @@ class PageSalinity(ScenarioPage):
 
         # Add control to configure bulk relaxation.
         layout.addSpacing(20)
-        layoutRelaxation = QtGui.QGridLayout()
+        layoutRelaxation = QtWidgets.QGridLayout()
         editSalinityRelaxation.addToGridLayout(layoutRelaxation,0,0,1,5,label=False,unit=False)
         editSalinityBulk.addToGridLayout(layoutRelaxation,1,1)
         layoutRelaxation.setColumnMinimumWidth(0,commonqt.getRadioWidth())
@@ -462,14 +462,14 @@ class PageTemperature(ScenarioPage):
     def __init__(self,parent=None):
         ScenarioPage.__init__(self, parent)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
 
         self.title = self.createHeader('Temperature observations','Here you can provide observations on vertical temperature profiles. These are used to initialize the column, and optionally to relax model results to.')
         layout.addWidget(self.title)
         layout.addSpacing(20)
 
         # Create main layout
-        layoutTemperature = QtGui.QGridLayout()
+        layoutTemperature = QtWidgets.QGridLayout()
         
         # Create button group for the temperature option, and an explanatory label.
         editTemperature = self.factory.createEditor('obs/tprofile',self,selectwithradio=True)
@@ -498,7 +498,7 @@ class PageTemperature(ScenarioPage):
         layoutTemperature.addWidget(editTemperature.editor.buttonFromValue(11),    2,0,1,2)
 
         # Add controls to edit constant temperature.
-        layoutConstant = QtGui.QGridLayout()
+        layoutConstant = QtWidgets.QGridLayout()
         editTemperatureConstant.addToGridLayout(layoutConstant)
         layoutConstant.setColumnStretch(3,1)
         layoutTemperature.addLayout(layoutConstant,3,1)
@@ -507,7 +507,7 @@ class PageTemperature(ScenarioPage):
         layoutTemperature.addWidget(editTemperature.editor.buttonFromValue(12),    4,0,1,2)
         
         # Add controls to edit two-layer temperature.
-        layoutLayer = QtGui.QGridLayout()
+        layoutLayer = QtWidgets.QGridLayout()
         editTemperatureUpperThickness.addToGridLayout(layoutLayer)
         editTemperatureUpper.addToGridLayout(layoutLayer)
         editTemperatureLowerThickness.addToGridLayout(layoutLayer)
@@ -519,7 +519,7 @@ class PageTemperature(ScenarioPage):
         layoutTemperature.addWidget(editTemperature.editor.buttonFromValue(13),    6,0,1,2)
 
         # Add controls to edit stably stratified temperature.
-        layoutNSquare = QtGui.QGridLayout()
+        layoutNSquare = QtWidgets.QGridLayout()
         editTemperatureSurface.addToGridLayout(layoutNSquare)
         editTemperatureNSquare.addToGridLayout(layoutNSquare)
         layoutNSquare.setColumnStretch(3,1)
@@ -529,7 +529,7 @@ class PageTemperature(ScenarioPage):
         layoutTemperature.addWidget(editTemperature.editor.buttonFromValue(2),     8,0,1,2)
         
         # Add control to choose custom salinities.
-        layoutFile = QtGui.QHBoxLayout()
+        layoutFile = QtWidgets.QHBoxLayout()
         editTemperatureFile.addToBoxLayout(layoutFile,label=False,unit=False)
         layoutFile.addStretch()
         layoutTemperature.addLayout(layoutFile,9,1)
@@ -539,7 +539,7 @@ class PageTemperature(ScenarioPage):
 
         # Add control to configure bulk relaxation.
         layout.addSpacing(20)
-        layoutRelaxation = QtGui.QGridLayout()
+        layoutRelaxation = QtWidgets.QGridLayout()
         editTemperatureRelaxation.addToGridLayout(layoutRelaxation,0,0,1,5,label=False,unit=False)
         editTemperatureBulk.addToGridLayout(layoutRelaxation,1,1)
         layoutRelaxation.setColumnMinimumWidth(0,commonqt.getRadioWidth())
@@ -557,13 +557,13 @@ class PageTurbulence(ScenarioPage):
         ScenarioPage.__init__(self, parent)
 
         # Create main layout
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
 
         self.title = self.createHeader('Turbulence model','Here you choose the turbulence model to be used.')
         layout.addWidget(self.title)
         layout.addSpacing(20)
         
-        layoutTurbulence = QtGui.QGridLayout()
+        layoutTurbulence = QtWidgets.QGridLayout()
         
         # Create button group for the turbulence method option, and an explanatory label.
         editMethod = self.factory.createEditor('gotmturb/turb_method',self,selectwithradio=True)
@@ -579,7 +579,7 @@ class PageTurbulence(ScenarioPage):
         layoutTurbulence.addWidget(bngrpMethod.buttonFromValue(2), 2,0,1,3)
         
         # Add controls specific to first-order model
-        layoutFirstOrder = QtGui.QGridLayout()
+        layoutFirstOrder = QtWidgets.QGridLayout()
         editStabilityMethod = self.factory.createEditor('gotmturb/stab_method',self)
         editStabilityMethod.addToGridLayout(layoutFirstOrder,0,0)
         layoutTurbulence.addLayout(layoutFirstOrder,      3,1)
@@ -588,7 +588,7 @@ class PageTurbulence(ScenarioPage):
         layoutTurbulence.addWidget(bngrpMethod.buttonFromValue(3), 4,0,1,3)
 
         # Add controls specific to second-order model
-        layoutSecondOrder = QtGui.QGridLayout()
+        layoutSecondOrder = QtWidgets.QGridLayout()
         editSecondCoef = self.factory.createEditor('gotmturb/scnd/scnd_coeff',self)
         editSecondCoef.addToGridLayout(layoutSecondOrder,0,0)
         layoutTurbulence.addLayout(layoutSecondOrder,     5,1)
@@ -602,7 +602,7 @@ class PageTurbulence(ScenarioPage):
 
         layout.addSpacing(20)
 
-        layoutOther = QtGui.QGridLayout()
+        layoutOther = QtWidgets.QGridLayout()
         editTkeMethod = self.factory.createEditor('gotmturb/tke_method',self)
         editLenScaleMethod = self.factory.createEditor('gotmturb/len_scale_method',self)
         editTkeMethod.addToGridLayout(layoutOther,0,0)
@@ -623,29 +623,29 @@ class PageAirSeaInteraction(ScenarioPage):
         radiowidth = commonqt.getRadioWidth()
         
         # Create main layout
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
 
         self.title = self.createHeader('Air-sea interaction: heat and momentum','Here you specify fluxes of heat and momentum across the ocean-atmosphere interface. Note that heat fluxes include latent and sensible fluxes, but not short-wave solar radiation.')
         layout.addWidget(self.title)
         layout.addSpacing(20)
 
-        layoutAirSea = QtGui.QGridLayout()
+        layoutAirSea = QtWidgets.QGridLayout()
         layoutAirSea.setColumnMinimumWidth(0,radiowidth)
         
         editCalcFluxes = self.factory.createEditor('airsea/flux_source',self,selectwithradio=True)
         
         # Meteo file and unit
 
-        meteolayout = QtGui.QVBoxLayout()
+        meteolayout = QtWidgets.QVBoxLayout()
         editMeteoFile = self.factory.createEditor('airsea/meteo_file',self)
         editWetMode   = self.factory.createEditor('airsea/hum_method',  self)
         
-        meteofilelayout = QtGui.QHBoxLayout()
+        meteofilelayout = QtWidgets.QHBoxLayout()
         editMeteoFile.addToBoxLayout(meteofilelayout,label=False,unit=False)
         meteofilelayout.addStretch()
         meteolayout.addLayout(meteofilelayout)
         
-        meteowetmodelayout = QtGui.QHBoxLayout()
+        meteowetmodelayout = QtWidgets.QHBoxLayout()
         editWetMode.addToBoxLayout(meteowetmodelayout)
         meteowetmodelayout.addStretch()
         meteolayout.addLayout(meteowetmodelayout)
@@ -654,7 +654,7 @@ class PageAirSeaInteraction(ScenarioPage):
 
         #groupboxSwr = self.factory.createEditor('airsea/swr_method',self,groupbox=True).editor
         #
-        #swrlayout = QtGui.QGridLayout()
+        #swrlayout = QtWidgets.QGridLayout()
         #swrlayout.setColumnMinimumWidth(0,radiowidth)
 #
         #editSwrMethod = self.factory.createEditor('airsea/swr_method', self,selectwithradio=True)
@@ -664,12 +664,12 @@ class PageAirSeaInteraction(ScenarioPage):
         #swrlayout.addWidget(editSwrMethod.editor.buttonFromValue(0),1,0,1,2)
 #
         #swrlayout.addWidget(editSwrMethod.editor.buttonFromValue(1),2,0,1,2)
-        #constswrlayout = QtGui.QHBoxLayout()
+        #constswrlayout = QtWidgets.QHBoxLayout()
         #editConstSwr.addToBoxLayout(constswrlayout)
         #swrlayout.addLayout(constswrlayout,3,1)
         #
         #swrlayout.addWidget(editSwrMethod.editor.buttonFromValue(2),4,0,1,2)
-        #swrfilelayout = QtGui.QHBoxLayout()
+        #swrfilelayout = QtWidgets.QHBoxLayout()
         #editSwrFile.addToBoxLayout(swrfilelayout,label=False,unit=False)
         #swrfilelayout.addStretch()
         #swrlayout.addLayout(swrfilelayout,5,1)
@@ -684,7 +684,7 @@ class PageAirSeaInteraction(ScenarioPage):
 
         groupboxHeat = self.factory.createEditor('airsea/heat_method',self,groupbox=True).editor
         
-        heatlayout = QtGui.QGridLayout()
+        heatlayout = QtWidgets.QGridLayout()
         heatlayout.setColumnMinimumWidth(0,radiowidth)
 
         editHeatMethod   = self.factory.createEditor('airsea/heat_method',  self,selectwithradio=True)
@@ -694,12 +694,12 @@ class PageAirSeaInteraction(ScenarioPage):
         heatlayout.addWidget(editHeatMethod.editor.buttonFromValue(0),1,0,1,2)
 
         heatlayout.addWidget(editHeatMethod.editor.buttonFromValue(1),2,0,1,2)
-        constheatlayout = QtGui.QHBoxLayout()
+        constheatlayout = QtWidgets.QHBoxLayout()
         editConstHeat.addToBoxLayout(constheatlayout)
         heatlayout.addLayout(constheatlayout,3,1)
         
         heatlayout.addWidget(editHeatMethod.editor.buttonFromValue(2),4,0,1,2)
-        heatfilelayout = QtGui.QHBoxLayout()
+        heatfilelayout = QtWidgets.QHBoxLayout()
         editHeatfluxFile.addToBoxLayout(heatfilelayout,label=False,unit=False)
         heatfilelayout.addStretch()
         heatlayout.addLayout(heatfilelayout,5,1)
@@ -712,7 +712,7 @@ class PageAirSeaInteraction(ScenarioPage):
 
         groupboxMomentum = self.factory.createEditor('airsea/momentum_method',self,groupbox=True).editor
         
-        layoutMomentum = QtGui.QGridLayout()
+        layoutMomentum = QtWidgets.QGridLayout()
         layoutMomentum.setColumnMinimumWidth(0,radiowidth)
 
         editMomentumMethod  = self.factory.createEditor('airsea/momentum_method',  self,selectwithradio=True)
@@ -723,13 +723,13 @@ class PageAirSeaInteraction(ScenarioPage):
         layoutMomentum.addWidget(editMomentumMethod.editor.buttonFromValue(0),1,0,1,2)
 
         layoutMomentum.addWidget(editMomentumMethod.editor.buttonFromValue(1),2,0,1,2)
-        constmomentumlayout = QtGui.QGridLayout()
+        constmomentumlayout = QtWidgets.QGridLayout()
         editMomentumConstTx.addToGridLayout(constmomentumlayout)
         editMomentumConstTy.addToGridLayout(constmomentumlayout)
         layoutMomentum.addLayout(constmomentumlayout,3,1)
         
         layoutMomentum.addWidget(editMomentumMethod.editor.buttonFromValue(2),4,0,1,2)
-        momentumfilelayout = QtGui.QHBoxLayout()
+        momentumfilelayout = QtWidgets.QHBoxLayout()
         editmomentumFile.addToBoxLayout(momentumfilelayout,label=False,unit=False)
         momentumfilelayout.addStretch()
         layoutMomentum.addLayout(momentumfilelayout,5,1)
@@ -740,9 +740,9 @@ class PageAirSeaInteraction(ScenarioPage):
         
         # Freshwater fluxes
 
-#        groupboxPe = QtGui.QGroupBox('fresh water flux',self)
+#        groupboxPe = QtWidgets.QGroupBox('fresh water flux',self)
         
-#        layoutPe = QtGui.QGridLayout()
+#        layoutPe = QtWidgets.QGridLayout()
 #        layoutPe.setColumnMinimumWidth(0,radiowidth)
 
 #        self.editPeMethod  = self.factory.createEditor(['airsea','p_e_method'],   self,selectwithradio=True)
@@ -752,12 +752,12 @@ class PageAirSeaInteraction(ScenarioPage):
 #        layoutPe.addWidget(self.editPeMethod.editor.buttonFromValue(0),1,0,1,2)
 
 #        layoutPe.addWidget(self.editPeMethod.editor.buttonFromValue(1),2,0,1,2)
-#        constpelayout = QtGui.QGridLayout()
+#        constpelayout = QtWidgets.QGridLayout()
 #        self.editPeConst.addToGridLayout(constpelayout)
 #        layoutPe.addLayout(constpelayout,3,1)
         
 #        layoutPe.addWidget(self.editPeMethod.editor.buttonFromValue(2),4,0,1,2)
-#        pefilelayout = QtGui.QHBoxLayout()
+#        pefilelayout = QtWidgets.QHBoxLayout()
 #        self.editPeFile.addToBoxLayout(pefilelayout,label=False,unit=False)
 #        pefilelayout.addStretch()
 #        layoutPe.addLayout(pefilelayout,5,1)
@@ -789,20 +789,20 @@ class PageAirSeaInteraction2(ScenarioPage):
         radiowidth = commonqt.getRadioWidth()
         
         # Create main layout
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
 
         self.title = self.createHeader('Air-sea interaction: short-wave radiation and precipitation','Here you specify short-wave solar radiation and precipitation at the ocean-atmosphere interface.')
         layout.addWidget(self.title)
         layout.addSpacing(20)
 
-        layoutAirSea = QtGui.QGridLayout()
+        layoutAirSea = QtWidgets.QGridLayout()
         layoutAirSea.setColumnMinimumWidth(0,radiowidth)
 
         # Shortwave radiation
 
         groupboxSwr = self.factory.createEditor('airsea/swr_method',self,groupbox=True).editor
         
-        swrlayout = QtGui.QGridLayout()
+        swrlayout = QtWidgets.QGridLayout()
         swrlayout.setColumnMinimumWidth(0,radiowidth)
 
         editSwrMethod = self.factory.createEditor('airsea/swr_method', self,selectwithradio=True)
@@ -812,12 +812,12 @@ class PageAirSeaInteraction2(ScenarioPage):
         swrlayout.addWidget(editSwrMethod.editor.buttonFromValue(0),1,0,1,2)
 
         swrlayout.addWidget(editSwrMethod.editor.buttonFromValue(1),2,0,1,2)
-        constswrlayout = QtGui.QHBoxLayout()
+        constswrlayout = QtWidgets.QHBoxLayout()
         editConstSwr.addToBoxLayout(constswrlayout)
         swrlayout.addLayout(constswrlayout,3,1)
         
         swrlayout.addWidget(editSwrMethod.editor.buttonFromValue(2),4,0,1,2)
-        swrfilelayout = QtGui.QHBoxLayout()
+        swrfilelayout = QtWidgets.QHBoxLayout()
         editSwrFile.addToBoxLayout(swrfilelayout,label=False,unit=False)
         swrfilelayout.addStretch()
         swrlayout.addLayout(swrfilelayout,5,1)
@@ -832,7 +832,7 @@ class PageAirSeaInteraction2(ScenarioPage):
 
         groupboxPe = self.factory.createEditor('airsea/precip_method',self,groupbox=True).editor
         
-        layoutPe = QtGui.QGridLayout()
+        layoutPe = QtWidgets.QGridLayout()
         layoutPe.setColumnMinimumWidth(0,radiowidth)
 
         self.editPeMethod  = self.factory.createEditor('airsea/precip_method',self,selectwithradio=True)
@@ -842,12 +842,12 @@ class PageAirSeaInteraction2(ScenarioPage):
         layoutPe.addWidget(self.editPeMethod.editor.buttonFromValue(0),1,0,1,2)
 
         layoutPe.addWidget(self.editPeMethod.editor.buttonFromValue(1),2,0,1,2)
-        constpelayout = QtGui.QGridLayout()
+        constpelayout = QtWidgets.QGridLayout()
         self.editPeConst.addToGridLayout(constpelayout)
         layoutPe.addLayout(constpelayout,3,1)
         
         layoutPe.addWidget(self.editPeMethod.editor.buttonFromValue(2),4,0,1,2)
-        pefilelayout = QtGui.QHBoxLayout()
+        pefilelayout = QtWidgets.QHBoxLayout()
         self.editPeFile.addToBoxLayout(pefilelayout,label=False,unit=False)
         pefilelayout.addStretch()
         layoutPe.addLayout(pefilelayout,5,1)
@@ -871,7 +871,7 @@ class PageBio(ScenarioPage):
     def __init__(self,parent=None):
         ScenarioPage.__init__(self, parent)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.setSpacing(25)
 
         self.title = self.createHeader('Biogeochemistry','Here you can specify a biogeochemical model to use, and configure this model.')
@@ -903,7 +903,7 @@ class PageAdvanced(commonqt.WizardPage):
         
         self.tree = xmlstore.gui_qt4.TypedStoreTreeView(self,self.scenario,datasourcedir=parent.getProperty('datasourcedir'))
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
 
         self.title = self.createHeader('Advanced settings','Here you can change all properties of your scenario. Values that differ from the default are shown in bold; they can be reset to their default by clicking them with the right mousebutton and choosing "Reset value".')
         layout.addWidget(self.title)
@@ -924,7 +924,7 @@ class PageAdvanced(commonqt.WizardPage):
             if len(errors)>0:
                 msg = '\n'.join(errors)
                 if len(errors)>1: msg = 'The following problems remain:\n\n%s' % msg
-                QtGui.QMessageBox.critical(self,'Scenario is incomplete',msg,QtGui.QMessageBox.Ok,QtGui.QMessageBox.NoButton)
+                QtWidgets.QMessageBox.critical(self,'Scenario is incomplete',msg,QtWidgets.QMessageBox.Ok,QtWidgets.QMessageBox.NoButton)
                 return False
         return True
 
@@ -939,10 +939,10 @@ class PageSave(commonqt.WizardPage):
 
         self.scenario = parent.getProperty('scenario')
 
-        self.label = QtGui.QLabel('The scenario has been modified. Do you want to save it?',self)
-        self.bngroup     = QtGui.QButtonGroup()
-        self.radioNoSave = QtGui.QRadioButton('No, I do not want to save the modified scenario.', parent)
-        self.radioSave   = QtGui.QRadioButton('Yes, I want to save the scenario to file.', parent)
+        self.label = QtWidgets.QLabel('The scenario has been modified. Do you want to save it?',self)
+        self.bngroup     = QtWidgets.QButtonGroup()
+        self.radioNoSave = QtWidgets.QRadioButton('No, I do not want to save the modified scenario.', parent)
+        self.radioSave   = QtWidgets.QRadioButton('Yes, I want to save the scenario to file.', parent)
 
         self.pathSave = commonqt.PathEditor(self,header='File to save to: ',save=True)
         self.pathSave.filter = 'GOTM scenario files (*.gotmscenario);;All files (*.*)'
@@ -953,7 +953,7 @@ class PageSave(commonqt.WizardPage):
         self.bngroup.addButton(self.radioNoSave, 0)
         self.bngroup.addButton(self.radioSave,   1)
 
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.addWidget(self.label,0,0,1,2)
         layout.addWidget(self.radioNoSave,1,0,1,2)
         layout.addWidget(self.radioSave,2,0,1,2)
@@ -990,14 +990,14 @@ class PageSave(commonqt.WizardPage):
         if checkedid==1:
             targetpath = self.pathSave.path()
             if os.path.isfile(targetpath):
-                ret = QtGui.QMessageBox.warning(self, 'Overwrite existing file?', 'There already exists a file at the specified location. Overwrite it?', QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-                if ret==QtGui.QMessageBox.No:
+                ret = QtWidgets.QMessageBox.warning(self, 'Overwrite existing file?', 'There already exists a file at the specified location. Overwrite it?', QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+                if ret==QtWidgets.QMessageBox.No:
                     return False
             dialog = commonqt.ProgressDialog(self,title='Saving...',suppressstatus=True)
             try:
                 self.scenario.saveAll(targetpath,callback=dialog.onProgressed)
             except Exception,e:
-                QtGui.QMessageBox.critical(self, 'Unable to save scenario', str(e), QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+                QtWidgets.QMessageBox.critical(self, 'Unable to save scenario', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 dialog.close()
                 return False
             dialog.close()
@@ -1012,9 +1012,9 @@ class PageFinal(commonqt.WizardPage):
     def __init__(self,parent=None):
         commonqt.WizardPage.__init__(self, parent)
 
-        self.label = QtGui.QLabel('Your scenario is now complete.',self)
+        self.label = QtWidgets.QLabel('Your scenario is now complete.',self)
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.label)
         layout.addStretch()
         self.setLayout(layout)
@@ -1029,11 +1029,11 @@ class SequenceEditScenario(commonqt.WizardSequence):
 
 def loadScenario():
     # Create the application and enter the main message loop.
-    createQApp = QtGui.QApplication.startingUp()
+    createQApp = QtWidgets.QApplication.startingUp()
     if createQApp:
-        app = QtGui.QApplication([" "])
+        app = QtWidgets.QApplication([" "])
     else:
-        app = QtGui.qApp
+        app = QtWidgets.qApp
 
     # Create wizard dialog
     wiz = commonqt.Wizard(headerlogo=os.path.join(core.common.getDataRoot(),'logo.png'),allowfinish=True)
@@ -1054,11 +1054,11 @@ def loadScenario():
 
 def editScenario(scenario):
     # Create the application and enter the main message loop.
-    createQApp = QtGui.QApplication.startingUp()
+    createQApp = QtWidgets.QApplication.startingUp()
     if createQApp:
-        app = QtGui.QApplication([" "])
+        app = QtWidgets.QApplication([" "])
     else:
-        app = QtGui.qApp
+        app = QtWidgets.qApp
 
     import xmlplot.gui_qt4
 
@@ -1087,11 +1087,11 @@ def main():
     print 'xml version: '+xml.__version__
 
     # Create the application and enter the main message loop.
-    createQApp = QtGui.QApplication.startingUp()
+    createQApp = QtWidgets.QApplication.startingUp()
     if createQApp:
-        app = QtGui.QApplication([" "])
+        app = QtWidgets.QApplication([" "])
     else:
-        app = QtGui.qApp
+        app = QtWidgets.qApp
 
     import xmlplot.gui_qt4
 
