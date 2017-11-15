@@ -6,8 +6,6 @@ gotmversion = pygotm.get_version()
 if gotmversion.startswith('v'): gotmversion = gotmversion[1:]
 gotmscenarioversion = 'gotm-%s' % gotmversion.split(' ')[0].split('-')[0]
 
-if gotmscenarioversion=='gotm-4.9.0': gotmscenarioversion = 'gotm-4.1.0'
-
 verbose = False
 
 class Simulator(object):
