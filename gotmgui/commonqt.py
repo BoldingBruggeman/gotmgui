@@ -156,7 +156,7 @@ class PathEditor(QtWidgets.QWidget):
 class Wizard(QtWidgets.QDialog):
     
     def __init__(self,parent=None,sequence=None,closebutton=False,headerlogo=None,allowfinish=False):
-        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.Window|QtCore.Qt.WindowContextHelpButtonHint|QtCore.Qt.WindowMinMaxButtonsHint)
+        QtWidgets.QDialog.__init__(self, parent, QtCore.Qt.Window|QtCore.Qt.WindowContextHelpButtonHint|QtCore.Qt.WindowMinMaxButtonsHint|QtCore.Qt.WindowCloseButtonHint)
 
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0,0,0,0)

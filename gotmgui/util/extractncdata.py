@@ -19,7 +19,7 @@ def extractncdata(path,varname,pathout=None,fix='',plot=False,verbose=True,debug
         from xmlstore.qt_compat import QtWidgets, QtGui, QtCore
         import xmlplot.gui_qt4
         
-        # Create Qt4 application object if needed.
+        # Create Qt application object if needed.
         createQApp = QtWidgets.QApplication.startingUp()
         if createQApp:
             app = QtWidgets.QApplication([' '])
