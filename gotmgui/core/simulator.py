@@ -4,7 +4,10 @@ import common,result,pygotm
 
 gotmversion = pygotm.get_version()
 if gotmversion.startswith('v'): gotmversion = gotmversion[1:]
-gotmscenarioversion = 'gotm-%s' % gotmversion.split(' ')[0].split('-')[0]
+gotmscenarioversion = map(int, gotmversion.split(' ')[0].split('-')[0].split('.'))
+if gotmscenarioversion[0] >= 5:
+    gotmscenarioversion = gotmscenarioversion[:2]
+gotmscenarioversion = 'gotm-%s' % '.'.join(map(str, gotmscenarioversion))
 
 verbose = False
 
