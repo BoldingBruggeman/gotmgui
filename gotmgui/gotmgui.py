@@ -28,7 +28,7 @@ import xmlplot.errortrap
 
 def getVersions():
     yield ('Python','%i.%i.%i %s %i' % tuple(sys.version_info))
-    yield ('Qt4',QtCore.qVersion())
+    yield ('Qt',QtCore.qVersion())
     yield (qt4_backend,qt4_backend_version)
     
     import numpy
