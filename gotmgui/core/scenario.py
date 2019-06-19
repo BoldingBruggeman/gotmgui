@@ -381,7 +381,7 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
 
                 if addcomments:
                     nmlfile.write('!'+(linelength-1)*'-'+'\n')
-                    title = child.getText(detail=2).encode('ascii','xmlstore_descrepl')
+                    title = child.getText(detail=2).encode('ascii','xmlstore_descrepl').decode()
                     nmlfile.write(textwrap.fill(title,linelength-2,initial_indent='! ',subsequent_indent='! '))
                     nmlfile.write('\n!'+(linelength-1)*'-'+'\n')
 
@@ -396,7 +396,7 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
                         wrappedlines = []
                         lines.insert(0,'['+vartype+']')
                         for line in lines:
-                            line = line.encode('ascii','xmlstore_descrepl')
+                            line = line.encode('ascii','xmlstore_descrepl').decode()
                             wrappedlines += wrapper.wrap(line)
                         firstline = wrappedlines.pop(0)
                         nmlfile.write('! %-*s %s\n' % (varnamelength,varid,firstline))
@@ -420,9 +420,9 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
                     varstring = varval.toNamelistString(context,listchild.templatenode)
                     if isinstance(varstring,(list,tuple)):
                         for ind,value in varstring:
-                            nmlfile.write('   %s(%s) = %s,\n' % (varname,ind,value.encode('ascii','xmlstore_descrepl')))
+                            nmlfile.write('   %s(%s) = %s,\n' % (varname,ind,value.encode('ascii','xmlstore_descrepl').decode()))
                     else:
-                        nmlfile.write('   %s = %s,\n' % (varname,varstring.encode('ascii','xmlstore_descrepl')))
+                        nmlfile.write('   %s = %s,\n' % (varname,varstring.encode('ascii','xmlstore_descrepl').decode()))
                     if isinstance(varval,xmlstore.util.referencedobject): varval.release()
                 nmlfile.write('/\n\n')
 
