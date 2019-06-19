@@ -1,4 +1,4 @@
-#$Id: common.py,v 1.8 2010-09-15 10:33:41 jorn Exp $
+from __future__ import print_function
 
 import sys, os.path, shutil, atexit
 
@@ -38,7 +38,8 @@ class TempDirManager(object):
     @staticmethod
     def delete(path,unregister=True):
         assert path in TempDirManager.tempdirs, 'Attempt to delete temporary directory "%s" that is not in list of registered tempdirs.' % path
-        if verbose: print 'Deleting temporary directory "%s".' % path
+        if verbose:
+            print('Deleting temporary directory "%s".' % path)
         shutil.rmtree(path)
         if unregister: TempDirManager.tempdirs.remove(path)
     

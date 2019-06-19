@@ -114,7 +114,7 @@ class Result(xmlplot.data.NetCDFStore_GOTM):
         return ('result.nc' in filelist and 'scenario.gotmscenario' in filelist)
 
     def load(self,path):
-        if isinstance(path,basestring):
+        if isinstance(path, (str, u''.__class__)):
             container = xmlstore.datatypes.DataContainer.fromPath(path)
         elif isinstance(path,xmlstore.datatypes.DataContainer):
             container = path.addref()

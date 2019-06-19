@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 # Current GOTM/namelist version used by (1) the GUI, (2) saved GUI scenario files.
 # Currently (2) differs from (1) because (1) is still in development, while saved files must use a frozen
 # scenario version in order to be usable later too.
@@ -9,7 +11,7 @@ import os, shutil, re, datetime, sys
 
 # Import our own custom modules
 import xmlstore.xmlstore, xmlstore.util, xmlstore.datatypes
-import common, namelist
+from . import common, namelist
 
 # Some parts of the schemas will be loaded from the GOTM source directory.
 # For the developer's version, the source directory can be found one level below the GUI.
@@ -43,15 +45,18 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
         # Try the available schemas one by one, and see if they match the namelists.
         scenario,missingcount = None,None
         failures = ''
-        if common.verbose: print 'Detecting suitable schema for namelists in "%s"...' % path
+        if common.verbose:
+            print('Detecting suitable schema for namelists in "%s"...' % path)
         for sourceid in sourceids:
-            if common.verbose: print 'Trying schema "%s"...' % sourceid,
+            if common.verbose:
+                print('Trying schema "%s"...' % sourceid,)
             curscenario = cls.fromSchemaName(sourceid)
             try:
                 curscenario.loadFromNamelists(path,strict=strict,prototypepath=prototypepath,root=root)
-            except namelist.NamelistParseException,e:
+            except namelist.NamelistParseException as e:
                 failures += 'Path "%s" does not match template "%s".\nReason: %s\n' % (path,sourceid,e)
-                if common.verbose: print 'no match, %s.' % (e,)
+                if common.verbose:
+                    print('no match, %s.' % (e,))
                 curscenario.release()
                 continue
             curmissing = ['/'.join(n.location) for n in curscenario.root.getEmptyNodes()]
@@ -59,11 +64,11 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
             
             if common.verbose:
                 if curmissingcount>0:
-                    print 'match, %i missing values:' % (curmissingcount,)
+                    print('match, %i missing values:' % (curmissingcount,))
                     for nodepath in curmissing:
-                        print '  %s' % nodepath
+                        print('  %s' % nodepath)
                 else:
-                    print 'complete match'
+                    print('complete match')
                 
             if scenario is not None:
                 # A schema with higher priority matched - determine if this is a better match, based on the number of missing values.
@@ -78,11 +83,13 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
         if scenario is None:
             raise Exception('The path "%s" does not contain a supported scenario. Details:\n%s' % (path,failures))
 
-        if common.verbose: print 'Final selected schema: %s.' % (scenario.version)
+        if common.verbose:
+            print('Final selected schema: %s.' % (scenario.version))
             
         # Convert the store to the desired version, if specified.
         if targetversion is not None and scenario.version!=targetversion:
-            if common.verbose: print 'Converting to desired schema version %s...' % targetversion
+            if common.verbose:
+                print('Converting to desired schema version %s...' % targetversion)
             newscenario = scenario.convert(targetversion)
             scenario.release()
             return newscenario
@@ -224,7 +231,7 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
                     # No slice specification - assign to entire variable.
                     try:
                         val = vartype.fromNamelistString(vardata,datafilecontext,listchild.templatenode)
-                    except Exception,e:
+                    except Exception as e:
                         raise namelist.NamelistParseException('%s Variable data: %s' % (e,vardata),fullnmlfilename,listname,varname)
                 else:
                     # Slice specification provided - assign to subset of variable.
@@ -263,7 +270,7 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
 
         if root is None:
             root = self.root
-        elif isinstance(root,basestring):
+        elif isinstance(root, (str, u''.__class__)):
             strroot = root
             root = self.root[strroot]
             if root is None:
@@ -280,7 +287,7 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
                 # This path will contain namelist values.
                 try:
                     container = xmlstore.datatypes.DataContainer.fromPath(srcpath)
-                except Exception,e:
+                except Exception as e:
                     raise Exception('Unable to load specified path. ' + unicode(e))
 
                 # Retrieve the container for the namelist structures.
@@ -333,7 +340,7 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
         finally:            
             self.disconnectInterface(interface)
             if 'linkedobjects' in datafilecontext:
-                for v in datafilecontext['linkedobjects'].itervalues():
+                for v in datafilecontext['linkedobjects'].values():
                     v.release()
             if 'container' in datafilecontext:
                 datafilecontext['container'].release()
@@ -430,7 +437,8 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
         # when a node would contain a mixture of files, namelists and/or namelist variables.
         node2nmltype = self.detectNodeRolesInNamelist(interface)
 
-        if common.verbose: print 'Exporting scenario to namelist files...'
+        if common.verbose:
+            print('Exporting scenario to namelist files...')
 
         if addcomments:
             # Import and configure text wrapping utility.
@@ -444,7 +452,7 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
         # If root node is not specified, use the root of the schema.
         if root is None:
             root = self.root
-        elif isinstance(root,basestring):
+        elif isinstance(root, (str, u''.__class__)):
             root = self.root[root]
             
         roottype = node2nmltype[root]
@@ -459,7 +467,7 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
                     try:
                         os.mkdir(targetpath)
                         createddir = True
-                    except Exception,e:
+                    except Exception as e:
                         raise Exception('Unable to create target directory "%s". Error: %s' %(targetpath,str(e)))
                         
                 # Set the context for writing of node values.

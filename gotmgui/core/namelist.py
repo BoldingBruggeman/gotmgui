@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import re
 
 # ------------------------------------------------------------------------------------------
@@ -33,10 +35,10 @@ class NamelistSubstitutions(object):
         # If the supplied argument is a string, it should be a path to a file.
         # Try to open it. Otherwise the supplied argument should be a file-like object.
         ownfile = False
-        if isinstance(valuesfile,basestring):
+        if isinstance(valuesfile, (str, u''.__class__)):
             try:
                 valuesfile = open(valuesfile,'rU')
-            except Exception,e:
+            except Exception as e:
                 raise NamelistParseException('Cannot open .values file "%s". Error: %s' % (path,str(e)))
             ownfile = True
             
@@ -97,7 +99,7 @@ class Namelist(object):
             elif ch=='/':
                 break
             else:
-                print self.data
+                print(self.data)
                 raise Exception('Unknown character %s found in namelist.' % ch)
                 ipos += 1
                 
@@ -164,13 +166,13 @@ class NamelistFile(object):
             NamelistFile.stopchar_re     = re.compile('[/"\']')
     
         ownfile = False
-        if isinstance(nmlfile,basestring):
+        if isinstance(nmlfile, (str, u''.__class__)):
             ownfile = True
             
             # Attempt to open namelist file and read all data
             try:
                 nmlfile = open(nmlfile,'rU')
-            except Exception,e:
+            except Exception as e:
                 raise NamelistParseException('Cannot open namelist file. Error: %s' % (str(e),),path)
             self.path = nmlfile
         else:
