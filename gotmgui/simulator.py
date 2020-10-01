@@ -39,7 +39,7 @@ class GOTMThread(QtCore.QThread):
     assert self.scenario is not None, 'No scenario specified.'
     try:
         import core.simulator
-    except ImportError,e:
+    except ImportError as e:
         import core.result
         self.res = core.result.Result()
         self.res.errormessage = str(e)
@@ -139,7 +139,8 @@ class PageProgress(commonqt.WizardPage):
             
     def done(self):
         res = self.gotmthread.res
-        if core.common.verbose: print 'GOTM thread shut-down; return code = %i' % res.returncode
+        if core.common.verbose:
+            print('GOTM thread shut-down; return code = %i' % res.returncode)
 
         layout = self.layout()
 
@@ -193,7 +194,7 @@ class PageProgress(commonqt.WizardPage):
         makevisible = self.text.isHidden()
         self.text.setVisible(makevisible)
         self.savebutton.setVisible(makevisible)
-        curtext = unicode(self.showhidebutton.text())
+        curtext = u''.__class__(self.showhidebutton.text())
         if makevisible:
             self.showhidebutton.setText(curtext.replace('Show','Hide'))
         else:

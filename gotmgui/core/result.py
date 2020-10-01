@@ -1,8 +1,8 @@
-import os.path, xml.dom.minidom, shutil, StringIO
+import os.path, xml.dom.minidom, shutil, io
 
 import xmlstore.xmlstore
 import xmlplot.common, xmlplot.data
-import common, scenario
+from . import common, scenario
 
 class ResultProperties(xmlstore.xmlstore.TypedStore):
     """Class for result properties, based on xmlstore.TypedStore.
@@ -20,7 +20,7 @@ class ResultProperties(xmlstore.xmlstore.TypedStore):
     @classmethod
     def getSchemaInfo(cls):
         return xmlstore.xmlstore.schemainfocache[os.path.join(common.getDataRoot(),'schemas/result')]
-        
+
     @classmethod
     def getCustomDataTypes(ownclass):
         import xmlplot.plot
@@ -34,19 +34,19 @@ class Result(xmlplot.data.NetCDFStore_GOTM):
 
     def __init__(self):
         xmlplot.data.NetCDFStore_GOTM.__init__(self)
-        
+
         self.scenario = None
         self.tempdir = None
         self.changed = False
-        
+
         self.stdout = None
         self.stderr = None
         self.returncode = 0
         self.errormessage = None
-        
+
         self.store = ResultProperties()
         self.wantedscenarioversion = scenario.guiscenarioversion
-        
+
         self.path = None
 
     def hasChanged(self):
@@ -59,7 +59,7 @@ class Result(xmlplot.data.NetCDFStore_GOTM):
         else:
             self.tempdir = common.TempDirManager.create(prefix='gotm-')
         return self.tempdir
-        
+
     def saveNetCDF(self,path):
         xmlplot.data.NetCDFStore_GOTM.save(self,path)
 
@@ -85,25 +85,25 @@ class Result(xmlplot.data.NetCDFStore_GOTM):
         # If we have a link to the scenario, add it to the result file.
         progslicer.nextStep('saving scenario')
         if self.scenario is not None:
-            fscen = StringIO.StringIO()
+            fscen = io.BytesIO()
             self.scenario.saveAll(fscen,claim=False,callback=progslicer.getStepCallback())
             df = xmlstore.datatypes.DataFileMemory(fscen.getvalue(),'scenario.gotmscenario')
             fscen.close()
             added = container.addItem(df)
             added.release()
             df.release()
-        
+
         # Add the result data (NetCDF)
         progslicer.nextStep('saving result data')
         container.addFile(self.datafile,'result.nc')
-        
+
         # Make changes to container persistent (this closes the ZIP file), and release it.
         container.persistChanges()
         container.release()
 
         # Saved all changes; reset "changed" state
         self.changed = False
-        
+
         # Store the path we saved to.
         self.path = path
 
@@ -185,13 +185,13 @@ class Result(xmlplot.data.NetCDFStore_GOTM):
         if self.scenario is not None:
             self.scenario.release()
         self.store.release()
-            
+
     def attach(self,srcpath,scenario=None,copy=True):
         if scenario is not None:
             self.scenario = scenario.convert(self.wantedscenarioversion)
         else:
             self.scenario = None
-            
+
         if copy:
             # Create a copy of the result file.
             tempdir = self.getTempDir(empty=True)
@@ -204,7 +204,7 @@ class Result(xmlplot.data.NetCDFStore_GOTM):
 
         # Attached to an existing result: we consider it unchanged.
         self.changed = False
-        
+
         if self.scenario is not None and self.scenario.path is not None and self.scenario.path.endswith('.gotmscenario'):
             self.path = self.scenario.path[:-12]+'gotmresult'
         else:

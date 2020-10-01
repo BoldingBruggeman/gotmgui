@@ -4,7 +4,7 @@ import os, xml.dom.minidom, shutil
 # Import own custom modules
 import xmlstore.util, xmlstore.xmlstore
 
-import common
+from . import common
 
 def createtable(xmldocument,tds,columncount):
     table = xmldocument.createElement('table')
@@ -38,11 +38,11 @@ class Report(xmlstore.util.referencedobject):
                         if os.path.isfile(os.path.join(fullpath,'index.xml')):
                             Report.reportname2path[filename] = fullpath
                         else:
-                            print 'WARNING: template directory "%s" does not contain "index.xml"; it will be ignored.' % fullpath
+                            print('WARNING: template directory "%s" does not contain "index.xml"; it will be ignored.' % fullpath)
                     else:
-                        print 'WARNING: template directory "%s" contains "%s" which is not a directory; the latter will be ignored.' % (sourcedir,filename)
+                        print('WARNING: template directory "%s" contains "%s" which is not a directory; the latter will be ignored.' % (sourcedir,filename))
             else:
-                print 'WARNING: no report templates will be available, because subdirectory "%s" is not present!' % Report.reportdirname
+                print('WARNING: no report templates will be available, because subdirectory "%s" is not present!' % Report.reportdirname)
         return Report.reportname2path
 
     def __init__(self,defaultfont=None):
@@ -114,7 +114,7 @@ class Report(xmlstore.util.referencedobject):
             variablenode = scenario[variablepath]
             assert variablenode is not None, 'Unable to locate "%s" in the scenario.' % variablepath
             val = variablenode.getValueAsString()
-            node.parentNode.replaceChild(xmldocument.createTextNode(unicode(val)),node)
+            node.parentNode.replaceChild(xmldocument.createTextNode(u''.__class__(val)),node)
             node.unlink()
 
         # --------------------------------------------------------------
@@ -274,7 +274,7 @@ class Report(xmlstore.util.referencedobject):
             xmldocument.writexml(f,encoding='utf-8')
             f.close()
         else:
-            print xmldocument.toxml('utf-8')
+            print(xmldocument.toxml('utf-8'))
         istep += 1
 
         if callback is not None: callback(istep/steps,'Done.')

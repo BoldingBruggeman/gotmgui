@@ -38,11 +38,11 @@ def browseForPath(parent=None,curpath=None,getdirectory=False,save=False,filter=
     if curpath is None: curpath=''
     if dlgoptions is None: dlgoptions = QtWidgets.QFileDialog.Option()
     if getdirectory:
-        path = unicode(QtWidgets.QFileDialog.getExistingDirectory(parent,'',curpath))
+        path = u''.__class__(QtWidgets.QFileDialog.getExistingDirectory(parent,'',curpath))
     elif save:
-        path,selfilt = map(unicode,QtWidgets.QFileDialog.getSaveFileNameAndFilter(parent,'',curpath,filter,None,dlgoptions))
+        path, selfilt = map(u''.__class__, QtWidgets.QFileDialog.getSaveFileNameAndFilter(parent,'',curpath,filter,None,dlgoptions))
     else:
-        path,selfilt = map(unicode,QtWidgets.QFileDialog.getOpenFileNameAndFilter(parent,'',curpath,filter))
+        path, selfilt = map(u''.__class__, QtWidgets.QFileDialog.getOpenFileNameAndFilter(parent,'',curpath,filter))
         
     # If the browse dialog was cancelled, just return.
     if path=='': return None
@@ -128,7 +128,7 @@ class PathEditor(QtWidgets.QWidget):
         #return self.editor.setEditText(path)
 
     def path(self):
-        return unicode(self.lineedit.text())
+        return u''.__class__(self.lineedit.text())
         #return unicode(self.editor.currentText())
 
     @QtCore.Slot()
@@ -212,7 +212,7 @@ class Wizard(QtWidgets.QDialog):
             self.settings = core.settings.SettingsStore()
             try:
                 self.settings.load()
-            except core.settings.LoadException,e:
+            except core.settings.LoadException as e:
                 QtWidgets.QMessageBox.warning(self, 'Unable to load settings', str(e))
         return self.settings
 

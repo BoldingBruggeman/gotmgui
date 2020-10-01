@@ -24,13 +24,13 @@ def loadResult(path):
             done = True
             try:
                 res.attach(path,copy=False)
-            except Exception,e:
+            except Exception as e:
                 done = False
             if not done:
                 done = True
                 try:
                     res.load(path)
-                except Exception,e:
+                except Exception as e:
                     done = False
             if (not done):
                 raise Exception('The file "%s" is not a GOTM result or a NetCDF file.' % path)
@@ -91,7 +91,7 @@ class PageOpen(commonqt.WizardPage):
         if not mustbevalid: return True
         try:
             res = self.openwidget.getResult()
-        except Exception,e:
+        except Exception as e:
             QtWidgets.QMessageBox.critical(self, 'Unable to load result', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
             return False
         self.owner.setProperty('result',res)
@@ -278,7 +278,7 @@ class ConfigureReportWidget(QtWidgets.QWidget):
     def generate(self):
         # Get path of target directory and template.
         templateindex = self.comboTemplates.currentIndex()
-        templatepath = unicode(self.comboTemplates.itemData(templateindex))
+        templatepath = u''.__class__(self.comboTemplates.itemData(templateindex))
         outputpath = self.pathOutput.path()
 
         # Warn if the target directory is not empty.
@@ -320,7 +320,7 @@ class PageReportGenerator(commonqt.WizardPage):
         self.result = parent.getProperty('result')
         
         import xmlplot.gui_qt4
-        deffont = xmlplot.gui_qt4.getFontSubstitute(unicode(self.fontInfo().family()))
+        deffont = xmlplot.gui_qt4.getFontSubstitute(u''.__class__(self.fontInfo().family()))
         self.report = core.report.Report(defaultfont = deffont)
         
         # Copy report settings from result.
@@ -460,8 +460,8 @@ class PageSave(commonqt.WizardPage):
                 finally:
                     dialog.close()
                 self.owner.settings.addUniqueValue('Paths/RecentResults','Path',targetpath)
-            except Exception,e:
-                print e
+            except Exception as e:
+                print(e)
                 QtWidgets.QMessageBox.critical(self, 'Unable to save result', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 return False
         return True
@@ -515,10 +515,10 @@ def visualizeResult(result):
 
 def main():
     # Debug info
-    print 'Python version: '+str(sys.version_info)
-    print '%s version: %s' % (qt4_backend,qt4_backend_version)
-    print 'Qt version: '+QtCore.qVersion()
-    print 'xml version: '+xml.__version__
+    print('Python version: '+str(sys.version_info))
+    print('%s version: %s' % (qt4_backend,qt4_backend_version))
+    print('Qt version: '+QtCore.qVersion())
+    print('xml version: '+xml.__version__)
 
     # Create the application and enter the main message loop.
     createQApp = QtWidgets.QApplication.startingUp()
@@ -539,8 +539,8 @@ def main():
         res = None
         try:
             res = loadResult(sys.argv[1])
-        except Exception,e:
-            QtWidgets.QMessageBox.critical(self, 'Unable to load result', unicode(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, 'Unable to load result', repr(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
         if res is not None:
             seq.pop(0)
             wiz.setProperty('result',res)

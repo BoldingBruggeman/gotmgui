@@ -15,14 +15,14 @@ def run(scenariopath):
     # Simulate
     res = core.simulator.simulate(scen,progresscallback=None,redirect=True)
     if res.returncode==1:
-        print 'Simulation failed. Error: %s.\n\nGOTM output:\n%s' % (res.errormessage,res.stderr)
+        print('Simulation failed. Error: %s.\n\nGOTM output:\n%s' % (res.errormessage,res.stderr))
         res.unlink()
         sys.exit(1)
         
     # Get text output
-    curerr = unicode(res.stderr)
-    curout = unicode(res.stdout)
-        
+    curerr = u''.__class__(res.stderr)
+    curout = u''.__class__(res.stdout)
+
     # Get MD5 hash of NetCDF file
     f = open(res.datafile,'rb')
     m = hashlib.md5()
@@ -46,11 +46,11 @@ itest = 0
 def test(scenariopath):
     global results,itest
     itest += 1
-    print 'Test %i with "%s"...' % (itest,scenariopath),
+    print('Test %i with "%s"...' % (itest,scenariopath),)
 
     curerr,curout,curhash,cursize = run(scenariopath)
     if scenariopath not in results:
-        print 'first run'
+        print('first run')
         results[scenariopath] = (curerr,curout,curhash,cursize)
     else:
         olderr,oldout,oldhash,oldsize = results[scenariopath]
@@ -67,27 +67,30 @@ def test(scenariopath):
     
         match = True
         if curerr!=olderr:
-            if match: print 'FAILED'
-            print 'ERROR standard error did not match original run.'
+            if match:
+                print('FAILED')
+            print('ERROR standard error did not match original run.')
             match = False
 
         if curout!=oldout:
-            if match: print 'FAILED'
-            print 'ERROR standard out did not match original run.'
+            if match:
+                print('FAILED')
+            print('ERROR standard out did not match original run.')
             match = False
 
         if curhash!=oldhash:        
-            if match: print 'FAILED'
-            print 'ERROR NetCDF did not match original run (old size = %i, new size: %i).' % (oldsize,cursize)
+            if match:
+                print('FAILED')
+            print('ERROR NetCDF did not match original run (old size = %i, new size: %i).' % (oldsize,cursize))
             match = False
             
         if not match:
             writelogs()
-            print '%s result differs.' % (os.path.basename(scenariopath),)
-            print 'Output written to log1.txt (original) and log2.txt (new).'
+            print('%s result differs.' % (os.path.basename(scenariopath),))
+            print('Output written to log1.txt (original) and log2.txt (new).')
             return False
         else:
-            print 'success'
+            print('success')
     return True
 
 def linearrun(scenariopaths,nsim=1):
@@ -117,14 +120,14 @@ if __name__=='__main__':
     (options, args) = parser.parse_args()
 
     if not args:
-        print '%s must be called with one or more paths to .gotmscenario files. These paths may contain wildcards.' % os.path.basename(__file__)
+        print('%s must be called with one or more paths to .gotmscenario files. These paths may contain wildcards.' % os.path.basename(__file__))
         sys.exit(2)
     
     paths = []
     for p in args:
         curpaths = glob.glob(p)
         if not curpaths:
-            print '"%s" was not found.' % p
+            print('"%s" was not found.' % p)
             sys.exit(2)
         paths += curpaths
 
@@ -136,34 +139,34 @@ if __name__=='__main__':
                 arg += ['--cache',options.cache]
             ret = subprocess.call(arg,shell=True)
             if ret!=0:
-                print 'Error occured during pristine runs. Exiting...'
+                print('Error occured during pristine runs. Exiting...')
                 sys.exit(1)
         sys.exit(0)
     
     if options.cache and os.path.isfile(options.cache):
-        print 'Loading earlier results from cache file "%s".' % options.cache
+        print('Loading earlier results from cache file "%s".' % options.cache)
         f = open(options.cache,'rb')
         results.update(cPickle.load(f))
         f.close()
 
     if options.stress:
-        print 'Stress testing with %i scenarios.' % len(paths)
+        print('Stress testing with %i scenarios.' % len(paths))
         valid = stresstest(paths)
     else:
-        print 'Iteratively testing %i scenarios.' % len(paths)
+        print('Iteratively testing %i scenarios.' % len(paths))
         while 1:
             valid = linearrun(paths,options.repeat)
             if not (valid and options.loop): break
-            print 'Looping...'
+            print('Looping...')
             
     if options.cache:
-        print 'Writing results to cache file "%s".' % options.cache
+        print('Writing results to cache file "%s".' % options.cache)
         f = open(options.cache,'wb')
         cPickle.dump(results,f,cPickle.HIGHEST_PROTOCOL)
         f.close()
 
     if not valid:
-        print 'Exiting...'
+        print('Exiting...')
         sys.exit(1)
         
     sys.exit(0)

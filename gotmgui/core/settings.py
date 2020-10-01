@@ -1,5 +1,5 @@
 import sys, os.path
-import common
+from . import common
 import xmlstore.xmlstore
 import xmlplot.common
 
@@ -9,13 +9,13 @@ class SettingsStore(xmlstore.xmlstore.TypedStore):
     def __init__(self,schema=None):
         if schema is None: schema = os.path.join(common.getDataRoot(),'schemas/settings/gotmgui.schema')
         xmlstore.xmlstore.TypedStore.__init__(self,schema)
-        
+
     def load(self):
         settingspath = self.getSettingsPath()
         if not os.path.isfile(settingspath): return
         try:
             xmlstore.xmlstore.TypedStore.load(self,settingspath)
-        except Exception,e:
+        except Exception as e:
             raise LoadException('Failed to load settings from "%s".\nReason: %s.\nAll settings will be reset.' % (settingspath,e))
             self.setStore(None)
         self.removeNonExistent('Paths/RecentScenarios','Path')
@@ -39,7 +39,7 @@ class SettingsStore(xmlstore.xmlstore.TypedStore):
         settingsdir = os.path.dirname(settingspath)
         if not os.path.isdir(settingsdir): os.mkdir(settingsdir)
         xmlstore.xmlstore.TypedStore.save(self,settingspath)
-        
+
     def removeNonExistent(self,parentlocation,nodename):
         """Removes nodes below specified location if their value is not
         a path to an existing file. Used to filter defunct most-recently-used

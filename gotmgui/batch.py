@@ -4,7 +4,7 @@
 import os,sys
 
 # Debug info
-print 'Python version: %s' % unicode(sys.version_info)
+print('Python version: %s' % unicode(sys.version_info))
 
 # In order to find our custom data files, make sure that we are in the directory
 # containing the executable.
@@ -21,7 +21,7 @@ import xmlstore
 import core.common, core.scenario, core.result, core.report
 
 if len(sys.argv)==1:
-    print \
+    print(
 """
 =============================================================================
 GOTM-GUI batch simulation command line utility
@@ -61,7 +61,7 @@ batch <path> [-writeresult <resultfile> [-cdf]] [-writereport <reportdir>]
     percentages and time remaining. Only used if a path to a scenario is
     specified as first argument.
 =============================================================================
-"""
+""")
     sys.exit(1)
 
 # Parse command line arguments
@@ -74,10 +74,10 @@ del sys.argv[1]
 
 # Warn for remaining (i.e., unused) command line arguments.
 if len(sys.argv)>1:
-    print '\n'
+    print('\n')
     for arg in sys.argv[1:]:
-        print 'WARNING: command line argument "%s" is unknown and will be ignored.' % arg
-    print 'Run "batch" without arguments to see a list of accepted arguments.\n'
+        print('WARNING: command line argument "%s" is unknown and will be ignored.' % arg)
+    print('Run "batch" without arguments to see a list of accepted arguments.\n')
 
 container = None
 
@@ -101,13 +101,13 @@ try:
     finally:
         container.release()
         
-except Exception,e:
-    print 'Cannot open "%s". Error: %s' % (path,e)
+except Exception as e:
+    print('Cannot open "%s". Error: %s' % (path,e))
     sys.exit(1)
 
 # Callback for simulation progress notifications.
 def printprogress(progress,remaining):
-    print '%5.1f %% done, %.0f seconds remaining...' % (progress*100,remaining)
+    print('%5.1f %% done, %.0f seconds remaining...' % (progress*100,remaining))
 
 # Simulate
 if res is None:
@@ -118,11 +118,11 @@ if res is None:
     import core.simulator
     res = core.simulator.simulate(scen,progresscallback=progcallback,redirect=not gotmoutput)
     if res.returncode==0:
-        print 'Simulation completed successfully.'
+        print('Simulation completed successfully.')
     elif res.returncode==1:
-        print 'Simulation failed. Error: %s.\n\nGOTM output:\n%s' % (res.errormessage,res.stderr)
+        print('Simulation failed. Error: %s.\n\nGOTM output:\n%s' % (res.errormessage,res.stderr))
     elif res.returncode==2:
-        print 'Simulation was cancelled by user.'
+        print('Simulation was cancelled by user.')
     else:
         assert False, 'GOTM simulator returned unknown code %i.' % res.returncode
 
@@ -131,16 +131,16 @@ if res.returncode==0:
     if resultpath is not None:
         resultpath = os.path.normpath(os.path.join(oldworkingdir, resultpath))
         if cdf:
-            print 'Writing NetCDF result to "%s".' % resultpath
+            print('Writing NetCDF result to "%s".' % resultpath)
             res.saveNetCDF(resultpath)
         else:
-            print 'Writing result to "%s".' % resultpath
+            print('Writing result to "%s".' % resultpath)
             res.save(resultpath)
 
     # Generate report, if requested.
     if reportpath is not None:
         def reportprogress(progress,description):
-            print '%5.1f %% done, %s' % (progress*100,description)
+            print('%5.1f %% done, %s' % (progress*100,description))
 
         reportpath = os.path.normpath(os.path.join(oldworkingdir, reportpath))
         reptemplates = core.report.Report.getTemplates()
@@ -158,11 +158,11 @@ if res.returncode==0:
                 ch.setValue('/'.join(node.location))
         treestore.unlink()
         
-        print 'Creating report in "%s".' % reportpath
+        print('Creating report in "%s".' % reportpath)
         rep.generate(res,reportpath,reptemplates['default'],callback=reportprogress)
         rep.release()
 
-# Clean-up        
+# Clean-up
 if scen is not None: scen.release()
 if res is not None: res.release()
 

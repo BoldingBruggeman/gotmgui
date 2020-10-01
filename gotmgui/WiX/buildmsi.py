@@ -8,7 +8,7 @@ import pythoncom    # Needed for GUID generation
 
 # Check for version number on command line
 if len(sys.argv)!=2:
-    print 'buildmsi.py takes one required argument: the version number of the application (x.x.x).'
+    print('buildmsi.py takes one required argument: the version number of the application (x.x.x).')
     sys.exit(2)
 
 # Additional internal settings
@@ -18,7 +18,7 @@ indent = '  '
 
 # Find WiX utilities
 if 'WIX' not in os.environ:
-    print 'Cannot find environment variable "WIX". Is WIX (http://wix.sourceforge.net) installed?'
+    print('Cannot find environment variable "WIX". Is WIX (http://wix.sourceforge.net) installed?')
     sys.exit(1)
 path_candle = os.path.join(os.environ['WIX'],'bin','candle.exe')
 path_light  = os.path.join(os.environ['WIX'],'bin','light.exe')
@@ -85,11 +85,11 @@ f_files.close()
 import subprocess
 
 ret = subprocess.call((path_candle,'gotmgui.wxs','files.wxs','vcredist.wxs','-dVersion=%s' % version))
-if ret!=0:
-    print 'CANDLE failed with return code %i: exiting.' % ret
+if ret != 0:
+    print('CANDLE failed with return code %i: exiting.' % ret)
     sys.exit(1)
 
 ret = subprocess.call((path_light,'gotmgui.wixobj','files.wixobj','vcredist.wixobj','-b','../dist','-o','gotmgui-%s.msi' % version))
-if ret!=0:
-    print 'LIGHT failed with return code %i: exiting.' % ret
+if ret != 0:
+    print('LIGHT failed with return code %i: exiting.' % ret)
     sys.exit(1)

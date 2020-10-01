@@ -7,38 +7,38 @@ gotmguiroot = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')
 sys.path.append(gotmguiroot)
 try: 
     import xmlplot.data
-except Exception,e:
-    print 'Unable to load xmlplot.data module. Reported error: %s.' % str(e) 
+except Exception as e:
+    print('Unable to load xmlplot.data module. Reported error: %s.' % str(e) )
     sys.exit(1)
 
 def extractncdata(path,varname,pathout=None,fix='',plot=False,verbose=True,debug=False):
     global xmlplot
-        
+
     if plot:
         # Import GUI libraries
         from xmlstore.qt_compat import QtWidgets, QtGui, QtCore
         import xmlplot.gui_qt4
-        
+
         # Create Qt application object if needed.
         createQApp = QtWidgets.QApplication.startingUp()
         if createQApp:
             app = QtWidgets.QApplication([' '])
         else:
             app = QtWidgets.qApp
-            
+
         dialogs = []
-    
+
     # Open the NetCDF file
     store = xmlplot.data.NetCDFStore.loadUnknownConvention(path)
-    
+
     # Get the variable and its dimensions
     var = store.getVariable(varname)
     if var is None:
-        print 'Variable %s was not found in NetCDF file. Available: %s.' % (varname,', '.join(store.getVariableNames()))
+        print('Variable %s was not found in NetCDF file. Available: %s.' % (varname,', '.join(store.getVariableNames())))
         return None
     dims = list(var.getDimensions())
     longname = var.getLongName()
-    
+
     # Parse the string that specifies which dimensions to fix.
     slices = [slice(None)]*len(dims)
     fixeddiminds = []
@@ -47,37 +47,40 @@ def extractncdata(path,varname,pathout=None,fix='',plot=False,verbose=True,debug
         dimname,value = assignment.split('=')
         value = float(value)
         if dimname not in dims:
-            print 'Dimension %s is not used by variable %s. Available dimensions: %s. Exiting...' % (dimname,varname,', '.join(dims))
+            print('Dimension %s is not used by variable %s. Available dimensions: %s. Exiting...' % (dimname,varname,', '.join(dims)))
             return None
         idim = dims.index(dimname)
         fixeddiminds.append(idim)
         slices[idim] = slice(value,value)
-        
+
     # Test if there is indeed only one dimension left after interpolation.
     dimsleft = [dims[i] for i in range(len(dims)) if i not in fixeddiminds]
     if len(dimsleft)>1:
-        print 'More than one dimension is left (namely %s) after applying %s, but this script can currently extract only one-dimensional data series. Exiting...' % (', '.join(dimsleft),fix)
+        print('More than one dimension is left (namely %s) after applying %s, but this script can currently extract only one-dimensional data series. Exiting...' % (', '.join(dimsleft),fix))
         return None
-        
+
     # Before retrieving data, first select the range that encapsulates the requested coordinates.
     # Translate float-based slice specification to integer-based slice specification.
     newslices = var.translateSliceSpecification(slices)
     for i in fixeddiminds:
         dimname,coord,newcoord = dims[i],slices[i].start,newslices[i]
-        if debug: print 'Variable %s: dimension %s = %.6g mapped to %s.' % (varname,dimname,coord,newcoord)
+        if debug:
+            print('Variable %s: dimension %s = %.6g mapped to %s.' % (varname,dimname,coord,newcoord))
         
     # Get the data.
-    if verbose: print 'Retrieving values for %s...' % longname
+    if verbose:
+        print('Retrieving values for %s...' % longname)
     varslice = var.getSlice(newslices)
     
     # Show current ranges for all dimensions
     if debug:
         for d,c in zip(varslice.dimensions,varslice.coords_stag):
-            print '%s min=%.8g, max=%.8g' % (d,c.min(),c.max())
-        print 'mean data value=%.8g' % (varslice.data.mean(),)
+            print('%s min=%.8g, max=%.8g' % (d,c.min(),c.max()))
+        print('mean data value=%.8g' % (varslice.data.mean(),))
     
     # Linearly interpolate
-    if verbose: print 'Linearly interpolating %s...' % longname
+    if verbose:
+        print('Linearly interpolating %s...' % longname)
     dim2value = dict([(dims[i],slices[i].start) for i in fixeddiminds])
     varslice = varslice.interp(**dim2value).squeeze()
     diminfo = dict([(d,var.getDimensionInfo(d)) for d in varslice.dimensions])
@@ -85,7 +88,7 @@ def extractncdata(path,varname,pathout=None,fix='',plot=False,verbose=True,debug
     # Show current ranges for all dimensions
     if debug:
         for d,c in zip(varslice.dimensions,varslice.coords):
-            print '%s min=%.8g, max=%.8g' % (d,c.min(),c.max())
+            print('%s min=%.8g, max=%.8g' % (d,c.min(), c.max()))
 
     if plot:
         # Create a dialog with figure of the current variable.
@@ -102,7 +105,8 @@ def extractncdata(path,varname,pathout=None,fix='',plot=False,verbose=True,debug
         # Create observations file
         mat = xmlplot.data.LinkedMatrix(dimensions=diminfo,dimensionorder=varslice.dimensions,variables=[(varname,longname,var.getUnit())])
         mat.setData([varslice.coords[0],varslice.data.reshape((-1,1))])
-        if verbose: print 'Saving %s to %s...' % (longname,pathout)
+        if verbose:
+            print('Saving %s to %s...' % (longname,pathout))
         mat.saveToFile(pathout)
 
     # Release the NetCDF file.
@@ -126,7 +130,7 @@ if (__name__=='__main__'):
     
     # Get required arguments
     if len(args)<2:
-        print 'At least 2 arguments must be provided: the path to the NetCDF file and the name of the NetCDF variable. Additionally you can provide the file to write the data to as third argument.'
+        print('At least 2 arguments must be provided: the path to the NetCDF file and the name of the NetCDF variable. Additionally you can provide the file to write the data to as third argument.')
         sys.exit(1)
     path,varname = args[:2]
     pathout = None
@@ -147,7 +151,7 @@ def extractncdata_parts(paths,*args,**kwargs):
         d.shape = (-1,)
         if coords:
             ilast = coords[-1].searchsorted(c[0])
-            print 'Overlap between files %s and %i is %i rows.' % (i-1,i,len(coords[-1])-ilast)
+            print('Overlap between files %s and %i is %i rows.' % (i-1,i,len(coords[-1])-ilast))
             coords[-1] = coords[-1][:ilast]
             data  [-1] = data  [-1][:ilast]
         coords.append(c)

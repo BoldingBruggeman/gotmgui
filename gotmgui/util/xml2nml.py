@@ -13,7 +13,7 @@ def main():
     # Check if we have the required arguments.
     # Note: sys.argv[0] contains the path name of the script.
     if len(sys.argv)<4:
-        print \
+        print(
 """
 =============================================================================
 GOTM-GUI scenario export utility
@@ -43,7 +43,7 @@ Converts the GOTM-GUI scenario file (or directory containing scenario.xml and
 the data files) "./seagrass.gotmscenario" to a directory "./seagrass" that
 contains namelist and data files suitable for GOTM version 3.2.4.
 =============================================================================
-"""
+""")
         return 1
         
     # Get command line arguments
@@ -53,18 +53,18 @@ contains namelist and data files suitable for GOTM version 3.2.4.
 
     # Check if the source path exists.
     if not os.path.exists(src):
-        print 'Error! The source path "%s" does not exist.' % src
+        print('Error! The source path "%s" does not exist.' % src)
         return 1
 
     # Check if we have an XML schema for the specified target scenario version.
     schemas = core.scenario.Scenario.getSchemaInfo().getSchemas()
     if schemaname not in schemas:
-        print 'Error! No XML schema available for specified output version "%s".' % schemaname
+        print('Error! No XML schema available for specified output version "%s".' % schemaname)
         return 1
 
     # Check if the target directory already exists (currently only produces warning and continues).
     if os.path.isdir(targetdir):
-        print 'Warning! The target directory "%s" exists; files in it may be overwritten.' % targetdir
+        print('Warning! The target directory "%s" exists; files in it may be overwritten.' % targetdir)
 
     # Create the scenario object for the specified version.
     scen = core.scenario.Scenario.fromSchemaName(schemaname)
@@ -75,15 +75,15 @@ contains namelist and data files suitable for GOTM version 3.2.4.
             scen.loadAll(src)
         elif src.endswith('.xml'):
             if copydata:
-                print 'Error! An XML source was specified; this source contains only the scenario settings, not the data files. Therefore, you must use the -nd switch.\n'
+                print('Error! An XML source was specified; this source contains only the scenario settings, not the data files. Therefore, you must use the -nd switch.\n')
                 if src=='scenario.xml':
-                    print 'If the data files are located in the directory of the specified scenario.xml file, specify the directory rather than scenario.xml as source.'
+                    print('If the data files are located in the directory of the specified scenario.xml file, specify the directory rather than scenario.xml as source.')
                 return 1
             scen.load(src)
     elif os.path.isdir(src):
         scen.loadAll(src)
     else:
-        print 'Error! The source path "%s" does not point to a file or directory.' % src
+        print('Error! The source path "%s" does not point to a file or directory.' % src)
         return 1
 
     # Export to namelists.

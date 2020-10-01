@@ -282,13 +282,13 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
         try:
             if roottype==0:
                 # Root node maps to a directory in namelist representation.
-            
+
                 # Try to open the specified path as a file container (currently can be zip, tar/gz or a directory)
                 # This path will contain namelist values.
                 try:
                     container = xmlstore.datatypes.DataContainer.fromPath(srcpath)
                 except Exception as e:
-                    raise Exception('Unable to load specified path. ' + unicode(e))
+                    raise Exception('Unable to load specified path. %s' % (e,))
 
                 # Retrieve the container for the namelist structures.
                 # This is the same container that contains values, unless we are using prototype files.
@@ -312,11 +312,11 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
 
                 # Build a list of files in the namelist directory
                 nmlfilelist = nmlcontainer.listFiles()
-                
+
                 # Define the context for reading store values. This includes a reference to the source container,
                 # as values may be stored in separate files containing binary or textual data.
                 datafilecontext['container'] = container.addref()
-            
+
                 try:
                     processDirectory(root)
                 finally:
@@ -325,7 +325,7 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
             else:
                 if not os.path.isfile(srcpath):
                     raise Exception('"%s" is not an existing file.' % srcpath)
-                    
+
                 # Define the context for reading store values. This includes a reference to the source container,
                 # as values may be stored in separate files containing binary or textual data.
                 datafilecontext['container'] = xmlstore.datatypes.DataContainerDirectory(os.path.split(srcpath)[0])
@@ -334,10 +334,10 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
                 df_file = open(srcpath,'rU')
                 nmlfile = namelist.NamelistFile(df_file)
                 df_file.close()
-        
+
                 # Child node represents a file containing namelists.
                 processFile(root,nmlfile,srcpath)
-        finally:            
+        finally:
             self.disconnectInterface(interface)
             if 'linkedobjects' in datafilecontext:
                 for v in datafilecontext['linkedobjects'].values():
@@ -346,16 +346,16 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
                 datafilecontext['container'].release()
 
     def writeAsNamelists(self, targetpath, copydatafiles=True, addcomments=False, allowmissingvalues=False, callback=None, root=None):
-    
+
         def processDirectory(node,prefix=''):
             children = interface.getChildren(node)
             progslicer = xmlstore.util.ProgressSlicer(callback,len(children))
             for child in children:
                 childpath = os.path.join(prefix,child.getId())
                 progslicer.nextStep(childpath)
-                
+
                 if child.isHidden(): continue
-                
+
                 if node2nmltype[child]==0:
                     # Child node maps to a directory in namelist representation.
                     if not os.path.isdir(childpath): os.mkdir(childpath)
@@ -448,19 +448,19 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
 
         # Define the context used for writing data files.
         context = {}
-        
+
         # If root node is not specified, use the root of the schema.
         if root is None:
             root = self.root
         elif isinstance(root, (str, u''.__class__)):
             root = self.root[root]
-            
+
         roottype = node2nmltype[root]
         assert roottype in (0,1),'Root of data store should represent either a directory (0) or file (1) in namelists, but its type equals %i.' % roottype
         try:
             if roottype==0:
                 # Root node maps to a directory in namelist representation.
-            
+
                 # If the directory to write to does not exist, create it.
                 createddir = False
                 if not os.path.isdir(targetpath):
@@ -469,12 +469,12 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
                         createddir = True
                     except Exception as e:
                         raise Exception('Unable to create target directory "%s". Error: %s' %(targetpath,str(e)))
-                        
+
                 # Set the context for writing of node values.
                 # The "targetcontainer" variable will serve as the location to write auxilliary data files to.
                 if copydatafiles:
                     context['targetcontainer'] = xmlstore.datatypes.DataContainerDirectory(targetpath)
-                    
+
                 # Write the namelist tree, and make sure the created directory is deleted if any error occurs.
                 try:
                     processDirectory(root,targetpath)
@@ -502,7 +502,7 @@ class NamelistStore(xmlstore.xmlstore.TypedStore):
         datatype = node.getValueType()
         description = node.getText(detail=2)
         lines = [description]
-        
+
         if node.templatenode.hasAttribute('hasoptions'):
             # Create list of options.
             options = xmlstore.util.findDescendantNode(node.templatenode,['options'])

@@ -120,7 +120,7 @@ class ScenarioWidget(QtWidgets.QWidget):
                     try:
                         res = core.result.Result()
                         res.load(path)
-                    except Exception,e:
+                    except Exception as e:
                         raise Exception('An error occurred while loading the result: '+str(e))
                     scen = res.scenario.addref()  # Note: the scenario version will be guiscenarioversion, set by Result
                     res.release()
@@ -128,23 +128,23 @@ class ScenarioWidget(QtWidgets.QWidget):
                     try:
                         scen = core.scenario.Scenario.fromSchemaName(core.scenario.guiscenarioversion)
                         scen.load(path)
-                    except Exception,e:
+                    except Exception as e:
                         raise Exception('An error occurred while loading the scenario: '+str(e))
                 else:
                     try:
                         scen = core.scenario.Scenario.fromSchemaName(core.scenario.guiscenarioversion)
                         scen.loadAll(path,callback=callback)
-                    except Exception,e:
+                    except Exception as e:
                         raise Exception('An error occurred while loading the scenario: '+str(e))
             elif checkedid==2:
                 try:
                     scen = core.scenario.Scenario.fromNamelists(self.pathImport1.path(),strict = False,targetversion=core.scenario.guiscenarioversion,requireplatform='gotm')
-                except Exception,e:
+                except Exception as e:
                     raise Exception('Cannot parse namelist files. Error: '+str(e))
             elif checkedid==3:
                 try:
                     scen = core.scenario.Scenario.fromNamelists(self.pathImport2.path(),strict = False,targetversion=core.scenario.guiscenarioversion,requireplatform='gotm')
-                except Exception,e:
+                except Exception as e:
                     raise Exception('Cannot parse namelist files. Error: '+str(e))
 
         finally:
@@ -197,7 +197,7 @@ class PageOpen(commonqt.WizardPage):
         dialog = commonqt.ProgressDialog(self,title='Please wait...',suppressstatus=True)
         try:
             newscen = self.scenariowidget.getScenario(callback=dialog.onProgressed,completecallback=dialog.close)
-        except Exception,e:
+        except Exception as e:
             QtWidgets.QMessageBox.critical(self, 'Unable to obtain scenario', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
             dialog.close()
             return False
@@ -996,7 +996,7 @@ class PageSave(commonqt.WizardPage):
             dialog = commonqt.ProgressDialog(self,title='Saving...',suppressstatus=True)
             try:
                 self.scenario.saveAll(targetpath,callback=dialog.onProgressed)
-            except Exception,e:
+            except Exception as e:
                 QtWidgets.QMessageBox.critical(self, 'Unable to save scenario', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 dialog.close()
                 return False
@@ -1081,10 +1081,10 @@ def editScenario(scenario):
     
 def main():
     # Debug info
-    print 'Python version: '+str(sys.version_info)
-    print '%s version: %s' % (qt4_backend,qt4_backend_version)
-    print 'Qt version: '+QtCore.qVersion()
-    print 'xml version: '+xml.__version__
+    print('Python version: '+str(sys.version_info))
+    print('%s version: %s' % (qt4_backend,qt4_backend_version))
+    print('Qt version: '+QtCore.qVersion())
+    print('xml version: '+xml.__version__)
 
     # Create the application and enter the main message loop.
     createQApp = QtWidgets.QApplication.startingUp()

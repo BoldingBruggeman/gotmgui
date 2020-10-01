@@ -12,8 +12,8 @@ nextprogress = 0.
 progresstep = .05
 def printprogress(progress,status):
     global nextprogress
-    if progress>=nextprogress:
-        print '%i %% done.' % (progress*100,)
+    if progress >= nextprogress:
+        print('%i %% done.' % (progress*100,))
         nextprogress += progresstep
 
 def main():
@@ -30,7 +30,7 @@ def main():
     # Check if we have the required arguments.
     # Note: sys.argv[0] contains the path name of the script.
     if len(sys.argv)<3:
-        print \
+        print(
 """
 =============================================================================
 GOTM-GUI scenario import utility
@@ -78,7 +78,7 @@ Converts the namelist .values file (plus data files) in the directory
 "./v3.2/seagrass" to the scenario file "./seagrass.gotmscenario" suitable for
 GOTM-GUI, while using .proto files in directory "./v3.2/templates".
 =============================================================================
-""" % core.scenario.savedscenarioversion
+""" % core.scenario.savedscenarioversion)
         return 1
         
     # Get command line arguments
@@ -87,40 +87,41 @@ GOTM-GUI, while using .proto files in directory "./v3.2/templates".
 
     # Check if the source path exists.
     if not os.path.exists(srcpath):
-        print 'Error! The source path "%s" does not exist.' % srcpath
+        print('Error! The source path "%s" does not exist.' % srcpath)
         return 1
 
     # Check if we have an XML schema for the specified target scenario version.
     schemas = core.scenario.Scenario.getSchemaInfo().getSchemas()
     if targetschema not in schemas:
-        print 'Error! No XML schema available for specified output version "%s".' % targetschema
+        print('Error! No XML schema available for specified output version "%s".' % targetschema)
         return 1
 
     # Check if the target path already exists (currently only produces warning and continues).
     if os.path.exists(targetpath):
-        print 'Warning! The target path "%s" exists; it may be overwritten.' % targetpath
+        print('Warning! The target path "%s" exists; it may be overwritten.' % targetpath)
 
     # Warn for alternative file extension.
     if (not targetisdir) and (not targetpath.endswith('.gotmscenario')):
-        print 'Warning! The output file does not have extension .gotmscenario, and will therefore not be recognized automatically by the GUI.'
+        print('Warning! The output file does not have extension .gotmscenario, and will therefore not be recognized automatically by the GUI.')
 
     # Try to parse the namelist files (implicitly converts to the specified target version).
     try:
         scen = core.scenario.Scenario.fromNamelists(srcpath,prototypepath=protodir,targetversion=targetschema,strict=strict,requireplatform='gotm')
-    except Exception,e:
-        print '\n\nFailed to load scenario from namelists. Reason:\n'+str(e)
-        print '\nYou might try adding the switch -ns. This switch disables strict namelist parsing.'
+    except Exception as e:
+        print('\n\nFailed to load scenario from namelists. Reason:\n'+str(e))
+        print('\nYou might try adding the switch -ns. This switch disables strict namelist parsing.')
         return 1
         
     if check:
-        print '\n============ checking scenario validity ============'
+        print('\n============ checking scenario validity ============')
         errors = scen.validate(callback=printprogress)
         if errors:
-            for e in errors: print e
-            print '============ validity check failed ============\n'
+            for e in errors:
+                print(e)
+            print('============ validity check failed ============\n')
             return 1
         else:
-            print '============ validity check succeeded ============\n'
+            print('============ validity check succeeded ============\n')
 
     # Export to scenario.
     scen.saveAll(targetpath,targetversion=targetschema,targetisdir=targetisdir)
@@ -131,6 +132,6 @@ GOTM-GUI, while using .proto files in directory "./v3.2/templates".
     return 0
 
 # If the script has been run (as opposed to imported), enter the main loop.
-if (__name__=='__main__'):
+if __name__ == '__main__':
     ret = main()
     sys.exit(ret)

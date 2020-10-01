@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 # Import standard Python modules
-import os,sys,optparse
+import os
+import sys
+import optparse
 
 rootdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(rootdir, '../../xmlstore'))
-sys.path.append(os.path.join(rootdir, '../../xmlplot'))
+sys.path.insert(0, os.path.join(rootdir, '../../xmlstore'))
+sys.path.insert(0, os.path.join(rootdir, '../../xmlplot'))
 
 # Import Qt Modules
 from xmlstore.qt_compat import QtGui, QtCore, QtWidgets, qt4_backend, qt4_backend_version, mpl_qt4_backend
@@ -17,8 +19,8 @@ matplotlib.use('agg')
 
 # In order to find our custom data files, make sure that we are in the directory
 # containing the executable.
-oldworkingdir = os.getcwdu()
-os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
+#oldworkingdir = os.getcwdu()
+#os.chdir(os.path.abspath(os.path.dirname(sys.argv[0])))
 
 # Now import our custom modules
 import xmlstore.util, xmlstore.gui_qt4
@@ -30,13 +32,13 @@ def getVersions():
     yield ('Python','%i.%i.%i %s %i' % tuple(sys.version_info))
     yield ('Qt',QtCore.qVersion())
     yield (qt4_backend,qt4_backend_version)
-    
+
     import numpy
     yield ('numpy',numpy.__version__)
 
     import matplotlib
     yield ('matplotlib',matplotlib.__version__)
-    
+
     import xmlplot.data
     if xmlplot.data.netcdf.selectednetcdfmodule is None: xmlplot.data.chooseNetCDFModule()
     yield xmlplot.data.netcdf.netcdfmodules[xmlplot.data.netcdf.selectednetcdfmodule]
@@ -57,7 +59,7 @@ class GOTMWizard(commonqt.Wizard):
             return self.dictionary.get('datasourcedir_value',default)
         def set(self,value):
             self.dictionary['datasourcedir_value'] = value
-    
+
     def __init__(self,parent=None,sequence=None,closebutton=False,showoptions=False):
         """Supplies the logo path to the Wizard, and adds a "Tools" button.
         """
@@ -73,16 +75,16 @@ class GOTMWizard(commonqt.Wizard):
         self.actSaveResult     = self.menuTools.addAction('Save result as...',self.onSaveResultAs)
         self.actExportResult   = self.menuTools.addAction('Export result to NetCDF...',self.onExportResult)
         self.actAbout          = self.menuTools.addAction('About GOTM-GUI...',self.onAbout)
-        
+
         if showoptions:
             self.actShowSettings = self.menuTools.addAction('Options...',self.onShowSettings)
         else:
             self.actShowSettings = None
-            
+
         self.bnTools.setMenu(self.menuTools)
-        
+
         self.setProperty('datasourcedir',self.DataSourceDir(self.shared))
-        
+
     def onPropertyChange(self,propertyname):
         """Called by the Wizard implementation when a property in the Wizard property store
         changes value. Used to enable/disable the "Tools" button when the scenario/result is (un)set.
@@ -95,7 +97,7 @@ class GOTMWizard(commonqt.Wizard):
             self.actExportScenario.setVisible(scen is not None)
             self.actSaveResult.setVisible(res is not None)
             self.actExportResult.setVisible(res is not None)
-            
+
     def onAbout(self):
         attr = QtCore.Qt.Dialog|QtCore.Qt.CustomizeWindowHint|QtCore.Qt.WindowTitleHint
         try:
@@ -123,12 +125,12 @@ class GOTMWizard(commonqt.Wizard):
         labelVersions = QtWidgets.QLabel('In bug reports, please quote the following version information:',dialog)
         labelVersions.setWordWrap(True)
         layout.addWidget(labelVersions)
-        
+
         textVersions = QtWidgets.QTextEdit(strversions,dialog)
         textVersions.setMaximumHeight(120)
         textVersions.setReadOnly(True)
         layout.addWidget(textVersions)
-        
+
         bnOk = QtWidgets.QPushButton('&OK',self)
         bnOk.clicked.connect(dialog.accept)
 
@@ -137,18 +139,18 @@ class GOTMWizard(commonqt.Wizard):
         bnlayout.addWidget(bnOk)
 
         layout.addLayout(bnlayout)
-        
+
         dialog.setLayout(layout)
-        
+
         dialog.setWindowTitle('About GOTM-GUI')
         dialog.resize(450,200)
-        
-        dialog.exec_()        
+
+        dialog.exec_()
 
     def onShowSettings(self):
         dialog = xmlstore.gui_qt4.PropertyEditorDialog(self,self.getSettings(),'Options',flags=QtCore.Qt.Tool)
         dialog.show()
-            
+
     def onSaveScenarioAs(self):
         scen = self.getProperty('scenario')
         path = commonqt.browseForPath(self,curpath=scen.path,save=True,filter='GOTM scenario files (*.gotmscenario);;All files (*.*)')
@@ -166,24 +168,23 @@ class GOTMWizard(commonqt.Wizard):
             """
             def __init__(self,parent=None):
                 QtWidgets.QDialog.__init__(self,parent,QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint | QtCore.Qt.WindowTitleHint)
-                
+
                 layout = QtWidgets.QVBoxLayout()
-                
+
                 # Add introductory label.
                 self.label = QtWidgets.QLabel('Choose the version of GOTM to export for:',self)
                 layout.addWidget(self.label)
-                
+
                 # Add combobox with versions.
                 self.comboVersion = QtWidgets.QComboBox(self)
                 versions = scen.getSchemaInfo().getSchemas().keys()
-                versions.sort()
-                for v in versions:
+                for v in sorted(versions):
                     # Only show schemas for namelist-supporting GOTM
                     # (and not those for the GUI)
                     if v.startswith('gotm-'): self.comboVersion.addItem(v)
                 self.comboVersion.setCurrentIndex(self.comboVersion.count()-1)
                 layout.addWidget(self.comboVersion)
-                
+
                 layoutButtons = QtWidgets.QHBoxLayout()
 
                 # Add "OK" button
@@ -195,13 +196,13 @@ class GOTMWizard(commonqt.Wizard):
                 self.bnCancel = QtWidgets.QPushButton('&Cancel',self)
                 self.bnCancel.clicked.connect(self.reject)
                 layoutButtons.addWidget(self.bnCancel)
-                
+
                 layout.addLayout(layoutButtons)
 
                 self.setLayout(layout)
-                
+
                 self.setWindowTitle('Export scenario to namelists')
-                
+
         scen = self.getProperty('scenario')
         dialog = ChooseVersionDialog(self)
         res = dialog.exec_()
@@ -214,13 +215,13 @@ class GOTMWizard(commonqt.Wizard):
                 try:
                     progslicer = xmlstore.util.ProgressSlicer(progdialog.onProgressed,2)
                     progslicer.nextStep('converting to desired version')
-                    exportscen = scen.convert(unicode(dialog.comboVersion.currentText()),callback=progslicer.getStepCallback())
+                    exportscen = scen.convert(u''.__class__(dialog.comboVersion.currentText()),callback=progslicer.getStepCallback())
                     progslicer.nextStep('writing files')
                     exportscen.writeAsNamelists(path,addcomments=True,callback=progslicer.getStepCallback())
                     exportscen.release()
                 finally:
                     progdialog.close()
-                
+
     def onSaveResultAs(self):
         res = self.getProperty('result')
         path = commonqt.browseForPath(self,curpath=res.path,save=True,filter='GOTM result files (*.gotmresult);;All files (*.*)')
@@ -231,7 +232,7 @@ class GOTMWizard(commonqt.Wizard):
             finally:
                 dialog.close()
             self.getSettings().addUniqueValue('Paths/RecentResults','Path',path)
-            
+
     def onExportResult(self):
         res = self.getProperty('result')
         curpath = None
@@ -281,8 +282,8 @@ class PageIntroduction(commonqt.WizardPage):
         self.label.setWordWrap(True)
         try:
             self.label.setOpenExternalLinks(True)
-        except Exception,e:
-            print 'Failed to enable links in QLabel. This may be because you are using a version of Qt prior to 4.2. Error: %s' % e
+        except Exception as e:
+            print('Failed to enable links in QLabel. This may be because you are using a version of Qt prior to 4.2. Error: %s' % e)
         layout.addWidget(self.label)
 
         layout.addStretch(1)
@@ -388,7 +389,7 @@ class PageChooseAction(commonqt.WizardPage):
             progslicer.nextStep('Loading scenario...',nodetailedmessage=True)
             try:
                 newscen = self.scenariowidget.getScenario(callback=progslicer.getStepCallback(),completecallback=dialog.close)
-            except Exception,e:
+            except Exception as e:
                 dialog.close()
                 if isinstance(e,AssertionError): raise
                 QtWidgets.QMessageBox.critical(self, 'Unable to obtain scenario', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
@@ -418,7 +419,7 @@ class PageChooseAction(commonqt.WizardPage):
             dialog.suppressstatus = True
             try:
                 newresult = self.resultwidget.getResult()
-            except Exception,e:
+            except Exception as e:
                 dialog.close()
                 QtWidgets.QMessageBox.critical(self, 'Unable to load result', str(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 return False
@@ -440,9 +441,9 @@ class PageChooseAction(commonqt.WizardPage):
 def start(options,args):
     global core, xmlstore, xmlplot
     if options.verbose:
-        print 'Module versions:'
+        print('Module versions:')
         for module,version in getVersions():
-            print '   %s %s' % (module,version)
+            print('   %s %s' % (module,version))
         import core.common,xmlstore.xmlstore
         core.common.verbose = True
         xmlstore.util.verbose = True
@@ -453,7 +454,7 @@ def start(options,args):
         for xmlplot.data.netcdf.selectednetcdfmodule,(m,v) in enumerate(xmlplot.data.netcdf.netcdfmodules):
             if m==options.nc: break
         else:
-            print 'Forced NetCDF module "%s" is not available. Available modules: %s.' % (options.nc,', '.join([m[0] for m in xmlplot.data.netcdf.netcdfmodules]))
+            print('Forced NetCDF module "%s" is not available. Available modules: %s.' % (options.nc,', '.join([m[0] for m in xmlplot.data.netcdf.netcdfmodules])))
             sys.exit(2)
 
     if options.schemadir is not None:
@@ -468,6 +469,14 @@ def start(options,args):
         app = QtWidgets.qApp
 
     app.setWindowIcon(QtGui.QIcon(os.path.join(core.common.getDataRoot(),'icon.png')))
+
+    if 'win32' in sys.platform:
+        # Give the program a unique entry in the taskbasr with its own icon (Windows 7 and up only)
+        import ctypes
+        try:
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(u'BoldingBruggeman.GOTM-GUI')
+        except:
+            pass
 
     class ForkOnAction1(commonqt.WizardFork):
         def getSequence(self):
@@ -497,7 +506,7 @@ def start(options,args):
     openpath = None
     scen = None
     res = None
-    if len(args)>0:
+    if len(args) > 0:
         import core.scenario, core.result
     
         openpath = os.path.normpath(os.path.join(oldworkingdir, args[0]))
@@ -505,8 +514,8 @@ def start(options,args):
         
         try:
             container = xmlstore.datatypes.DataContainer.fromPath(openpath)
-        except Exception,e:
-            QtWidgets.QMessageBox.critical(wiz, 'Unable to load specified path', unicode(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(wiz, 'Unable to load specified path', repr(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
             container = None
 
         if container is None:
@@ -516,16 +525,16 @@ def start(options,args):
             scen = core.scenario.Scenario.fromSchemaName(core.scenario.guiscenarioversion)
             try:
                 scen.loadAll(container)
-            except Exception,e:
-                QtWidgets.QMessageBox.critical(wiz, 'Unable to load scenario', unicode(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(wiz, 'Unable to load scenario', repr(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 scen = None
         elif core.result.Result.canBeOpened(container):
             res = core.result.Result()
             # Try to open the file as a result.
             try:
                 res.load(container)
-            except Exception,e:
-                QtWidgets.QMessageBox.critical(wiz, 'Unable to load result', unicode(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(wiz, 'Unable to load result', repr(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 res = None
         else:
             QtWidgets.QMessageBox.critical(wiz, 'Unable to open specified path', '"%s" is not a scenario or a result.' % openpath, QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)

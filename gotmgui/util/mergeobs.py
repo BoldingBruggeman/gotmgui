@@ -7,8 +7,8 @@ gotmguiroot = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')
 sys.path.append(gotmguiroot)
 try: 
     import xmlstore.util,xmlplot.common,xmlplot.data
-except Exception,e:
-    print 'Unable to load xmlplot.data module. Reported error: %s.' % str(e) 
+except Exception as e:
+    print('Unable to load xmlplot.data module. Reported error: %s.' % str(e) )
     sys.exit(1)
 
 def main():
@@ -31,7 +31,8 @@ def main():
     
         # Create observations file
         mat = xmlplot.data.LinkedMatrix(dimensions=diminfo,dimensionorder=(dimname,),variables=[vars[-1]])
-        if options.verbose: print 'Reading %s...' % (path)
+        if options.verbose:
+            print('Reading %s...' % (path))
         mat.loadFromFile(path)
         curdata = mat.getData()
         
@@ -44,12 +45,12 @@ def main():
         if options.verbose:
             if diminfo[dimname]['datatype']=='datetime':
                 if diminfo[dimname]['datatype']=='datetime': curmin,curmax = xmlplot.common.num2date(curmin),xmlplot.common.num2date(curmax)
-                print '"%s" ranges between %s and %s.' % (varname,xmlstore.util.formatDateTime(curmin),xmlstore.util.formatDateTime(curmax))
+                print('"%s" ranges between %s and %s.' % (varname,xmlstore.util.formatDateTime(curmin),xmlstore.util.formatDateTime(curmax)))
             else:
-                print '"%s" ranges between %.8g and %.8g.' % (varname,curmin,curmax)
+                print('"%s" ranges between %.8g and %.8g.' % (varname,curmin,curmax))
         
-    if maxc<minc:
-        print 'The data series from the different files do not overlap. Unable to combine them into a usable observation file.'
+    if maxc < minc:
+        print('The data series from the different files do not overlap. Unable to combine them into a usable observation file.')
         sys.exit(1)
         
     coords = numpy.unique(numpy.concatenate([d[0] for d in data],0))
@@ -62,7 +63,8 @@ def main():
 
     mat = xmlplot.data.LinkedMatrix(dimensions=diminfo,dimensionorder=(dimname,),variables=vars)
     mat.setData([coords,newdata])
-    if options.verbose: print 'Saving %s...' % (pathout,)
+    if options.verbose:
+        print('Saving %s...' % (pathout,))
     mat.saveToFile(pathout)
         
     return 0

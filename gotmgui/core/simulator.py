@@ -1,10 +1,11 @@
 import tempfile,os,time
 
-import common,result,pygotm
+from . import common, result
+import pygotm
 
 gotmversion = pygotm.get_version()
 if gotmversion.startswith('v'): gotmversion = gotmversion[1:]
-gotmscenarioversion = map(int, gotmversion.split(' ')[0].split('-')[0].split('.'))
+gotmscenarioversion = list(map(int, gotmversion.split(' ')[0].split('-')[0].split('.')))
 if gotmscenarioversion[0] >= 5:
     gotmscenarioversion = gotmscenarioversion[:2]
 gotmscenarioversion = 'gotm-%s' % '.'.join(map(str, gotmscenarioversion))
@@ -20,20 +21,24 @@ class Simulator(object):
         self.olddir = None
         
         # Create result object.
-        if verbose: print 'creating result'
+        if verbose:
+            print('creating result')
         self.result = result.Result()
 
         try:
             self.initialize()
-        except Exception,e:
+        except Exception as e:
+            raise
             self.result.errormessage = str(e)
             self.result.returncode = 1
     
     def initialize(self):
-        if verbose: print 'initializing simulation'
+        if verbose:
+            print('initializing simulation')
         
         namelistscenario = self.scenario.convert(gotmscenarioversion)
-        if verbose: print 'scenario converted'
+        if verbose:
+            print('scenario converted')
         self.simulationdir = common.TempDirManager.create('gotm-')
         namelistscenario['gotmrun/output/out_fmt'].setValue(2)
         namelistscenario['gotmrun/output/out_dir'].setValue('.')
@@ -42,15 +47,16 @@ class Simulator(object):
         namelistscenario.release()
                     
         # Save old working directory
-        self.olddir = os.getcwdu()
+        self.olddir = getattr(os, 'getcwdu', os.getcwd)()
 
-        if verbose: print 'switch working directory'
+        if verbose:
+            print('switch working directory')
 
         # Change to directory with GOTM scenario (catch exceptions that can occur,
         # for instance, if the specified directory does not exist).
         try:
             os.chdir(self.simulationdir)
-        except Exception,e:
+        except Exception as e:
             os.chdir(self.olddir)
             raise Exception('Failed to enter temporary simulation directory "%s". %s' % (self.simulationdir,e))
 
@@ -62,12 +68,13 @@ class Simulator(object):
             os.close(h)
             pygotm.redirect_output(self.outfile,self.errfile)
 
-        if verbose: print 'initializing gotm module'
+        if verbose:
+            print('initializing gotm module')
 
         # Initialize GOTM
         try:
             pygotm.initialize()
-        except Exception,e:
+        except Exception as e:
             os.chdir(self.olddir)
             raise Exception('Exception thrown while initializing GOTM: %s' % str(e))
 
@@ -81,7 +88,7 @@ class Simulator(object):
         # GOTM clean-up
         try:
             pygotm.finalize()
-        except Exception,e:
+        except Exception as e:
             self.result.errormessage = 'Error during GOTM clean-up: %s' % e
             if self.result.returncode==0: self.result.returncode = 1
             
@@ -114,8 +121,8 @@ class Simulator(object):
             # Failed: delete temporary simulation directory
             try:
                 common.TempDirManager.delete(self.simulationdir)
-            except Exception,e:
-                print 'Unable to completely remove GOTM temporary directory "%s".\nError: %s' % (self.simulationdir,e)
+            except Exception as e:
+                print('Unable to completely remove GOTM temporary directory "%s".\nError: %s' % (self.simulationdir,e))
                 
         return self.result
     
@@ -144,7 +151,7 @@ class Simulator(object):
             
             # Check if we have to cancel
             if continuecallback is not None and not continuecallback():
-                print 'GOTM run was cancelled; stopping simulation.'
+                print('GOTM run was cancelled; stopping simulation.')
                 self.result.returncode = 2
                 break
 
@@ -182,15 +189,15 @@ class Simulator(object):
         # Process time batch
         try:
             pygotm.run()
-        except Exception,e:
+        except Exception as e:
             self.result.errormessage = 'Exception thrown in GOTM time loop: %s' % e
             self.result.returncode = 1
             return
-            
+
         self.currentpos = islicestop + 1
-        
+
         return self.currentpos<=self.stop
-            
+
     def getBioVariableInfo(self):
         def readstringarray(stringdata):
             if stringdata is None: return ()
@@ -200,14 +207,14 @@ class Simulator(object):
         longnames = readstringarray(gotm.bio_var.var_long)
         units = readstringarray(gotm.bio_var.var_units)
         return names,longnames,units
-        
+
     def getDepth(self):
         return gotm.meanflow.h.sum()
-        
+
     def getBioValues(self):
         if gotm.bio_var.cc is None: return ()
         return list((gotm.bio_var.cc*gotm.meanflow.h).sum(axis=1)/gotm.meanflow.h.sum())
-        
+
     def setBioValues(self,values):
         assert len(values)==gotm.bio_var.cc.shape[0],'Number of provided values (%i) does not match number of bio state variables (%s).' % (len(values),gotm.bio_var.cc.shape[0])
         oldvalues = self.getBioValues()
