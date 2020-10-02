@@ -1,5 +1,5 @@
 # Import modules from standard Python library
-import os, xml.dom.minidom, shutil
+import os, xml.dom.minidom, shutil, io
 
 # Import own custom modules
 import xmlstore.util, xmlstore.xmlstore
@@ -22,7 +22,7 @@ def createtable(xmldocument,tds,columncount):
     return table
 
 class Report(xmlstore.util.referencedobject):
-    reportdirname = 'reporttemplates'
+    reportdirname = os.path.join(os.path.dirname(__file__), '../reporttemplates')
     reportname2path = None
 
     @staticmethod
@@ -268,11 +268,9 @@ class Report(xmlstore.util.referencedobject):
         
         if callback is not None: callback(istep/steps,'Writing HTML...')
 
-        if outputpath!='':
-            import codecs
-            f = codecs.open(os.path.join(outputpath,'index.html'),'w','utf-8')
-            xmldocument.writexml(f,encoding='utf-8')
-            f.close()
+        if outputpath != '':
+            with io.open(os.path.join(outputpath, 'index.html'), 'w', encoding='utf-8') as f:
+                xmldocument.writexml(f,encoding='utf-8')
         else:
             print(xmldocument.toxml('utf-8'))
         istep += 1

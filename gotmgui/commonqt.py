@@ -10,7 +10,7 @@ from xmlstore.qt_compat import QtGui, QtCore, QtWidgets
 
 # Import our own custom modules
 import xmlstore.util
-import core.common
+from .core import common
 
 radiowidth = None
 def getRadioWidth():
@@ -22,11 +22,11 @@ def getRadioWidth():
     if radiowidth is None:
         radiowidth = QtWidgets.qApp.style().pixelMetric(QtWidgets.QStyle.PM_ExclusiveIndicatorWidth)
     return radiowidth
-    
+
 def getIcon(name):
-    path = os.path.join(core.common.getDataRoot(),'icons',name)
+    path = os.path.join(common.getDataRoot(),'icons',name)
     return QtGui.QIcon(path)
-        
+
 # =======================================================================
 # Function for showing a Qt-based file/directory browse dialog
 # =======================================================================
@@ -208,11 +208,11 @@ class Wizard(QtWidgets.QDialog):
 
     def getSettings(self):
         if self.settings is None:
-            import core.settings
-            self.settings = core.settings.SettingsStore()
+            from .core import settings
+            self.settings = settings.SettingsStore()
             try:
                 self.settings.load()
-            except core.settings.LoadException as e:
+            except settings.LoadException as e:
                 QtWidgets.QMessageBox.warning(self, 'Unable to load settings', str(e))
         return self.settings
 

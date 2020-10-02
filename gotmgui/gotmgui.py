@@ -5,9 +5,14 @@ import os
 import sys
 import optparse
 
-rootdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(0, os.path.join(rootdir, '../../xmlstore'))
-sys.path.insert(0, os.path.join(rootdir, '../../xmlplot'))
+if not hasattr(sys,'frozen'):
+    rootdir = os.path.dirname(os.path.realpath(__file__))
+    path = sys.path[:]
+    if os.path.isdir(os.path.join(rootdir, '../../xmlstore/xmlstore')):
+        # Runnning from source (bbpy)
+        print('Detected that we are running from BBpy sources. Using local xmlstore/xmlplot.')
+        sys.path.insert(0, os.path.join(rootdir, '../../xmlstore'))
+        sys.path.insert(0, os.path.join(rootdir, '../../xmlplot'))
 
 # Import Qt Modules
 from xmlstore.qt_compat import QtGui, QtCore, QtWidgets, qt4_backend, qt4_backend_version, mpl_qt4_backend
@@ -24,8 +29,8 @@ matplotlib.use('agg')
 
 # Now import our custom modules
 import xmlstore.util, xmlstore.gui_qt4
-import core.common
-import commonqt
+from .core import common
+from . import commonqt
 import xmlplot.errortrap
 
 def getVersions():
@@ -63,7 +68,7 @@ class GOTMWizard(commonqt.Wizard):
     def __init__(self,parent=None,sequence=None,closebutton=False,showoptions=False):
         """Supplies the logo path to the Wizard, and adds a "Tools" button.
         """
-        commonqt.Wizard.__init__(self,parent,sequence,closebutton,headerlogo=os.path.join(core.common.getDataRoot(),'logo.png'))
+        commonqt.Wizard.__init__(self,parent,sequence,closebutton,headerlogo=os.path.join(common.getDataRoot(),'logo.png'))
 
         self.bnTools = QtWidgets.QPushButton(commonqt.getIcon('advanced.png'),'&Tools',self)
         #self.bnTools.setEnabled(False)
@@ -300,7 +305,7 @@ class PageChooseAction(commonqt.WizardPage):
     """
     
     def __init__(self,parent=None):
-        import scenariobuilder,visualizer
+        from . import scenariobuilder, visualizer
     
         commonqt.WizardPage.__init__(self, parent)
 
@@ -444,8 +449,8 @@ def start(options,args):
         print('Module versions:')
         for module,version in getVersions():
             print('   %s %s' % (module,version))
-        import core.common,xmlstore.xmlstore
-        core.common.verbose = True
+        import xmlstore.xmlstore
+        common.verbose = True
         xmlstore.util.verbose = True
 
     if options.nc is not None:
@@ -458,8 +463,8 @@ def start(options,args):
             sys.exit(2)
 
     if options.schemadir is not None:
-        import core.scenario
-        core.scenario.schemadir = options.schemadir
+        from .core import scenario
+        scenario.schemadir = options.schemadir
 
     # Create the application and enter the main message loop.
     createQApp = QtWidgets.QApplication.startingUp()
@@ -468,7 +473,7 @@ def start(options,args):
     else:
         app = QtWidgets.qApp
 
-    app.setWindowIcon(QtGui.QIcon(os.path.join(core.common.getDataRoot(),'icon.png')))
+    app.setWindowIcon(QtGui.QIcon(os.path.join(common.getDataRoot(),'icon.png')))
 
     if 'win32' in sys.platform:
         # Give the program a unique entry in the taskbasr with its own icon (Windows 7 and up only)
@@ -481,18 +486,18 @@ def start(options,args):
     class ForkOnAction1(commonqt.WizardFork):
         def getSequence(self):
             if self.wizard.getProperty('mainaction')=='scenario':
-                import simulator
+                from . import simulator
                 if self.wizard.getProperty('skipscenariobuilder'):
                     return commonqt.WizardSequence([simulator.PageProgress])
                 else:
-                    import scenariobuilder
+                    from . import scenariobuilder
                     return commonqt.WizardSequence([scenariobuilder.SequenceEditScenario(),simulator.PageProgress])
             else:
                 return commonqt.WizardSequence([commonqt.WizardDummyPage])
 
     class ForkOnAction2(commonqt.WizardFork):
         def getSequence(self):
-            import visualizer
+            from . import visualizer
             return commonqt.WizardSequence([visualizer.PageVisualize,visualizer.PageReportGenerator,visualizer.PageSave,visualizer.PageFinal])
 
     # Create wizard dialog
@@ -507,7 +512,7 @@ def start(options,args):
     scen = None
     res = None
     if len(args) > 0:
-        import core.scenario, core.result
+        from .core import scenario, result
     
         openpath = os.path.normpath(os.path.join(oldworkingdir, args[0]))
         del args[0]
@@ -520,16 +525,16 @@ def start(options,args):
 
         if container is None:
             pass
-        elif core.scenario.Scenario.canBeOpened(container):
+        elif scenario.Scenario.canBeOpened(container):
             # Try to open the file as a scenario.
-            scen = core.scenario.Scenario.fromSchemaName(core.scenario.guiscenarioversion)
+            scen = scenario.Scenario.fromSchemaName(scenario.guiscenarioversion)
             try:
                 scen.loadAll(container)
             except Exception as e:
                 QtWidgets.QMessageBox.critical(wiz, 'Unable to load scenario', repr(e), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
                 scen = None
-        elif core.result.Result.canBeOpened(container):
-            res = core.result.Result()
+        elif result.Result.canBeOpened(container):
+            res = result.Result()
             # Try to open the file as a result.
             try:
                 res.load(container)
@@ -609,4 +614,4 @@ if  __name__ == '__main__':
     main()
 
 # Reset previous working directory (only if we had to change it)
-os.chdir(os.path.dirname(oldworkingdir))
+#os.chdir(os.path.dirname(oldworkingdir))

@@ -5,14 +5,15 @@
 from xmlstore.qt_compat import QtGui, QtCore, QtWidgets, qt4_backend, qt4_backend_version
 
 import xmlstore.gui_qt4
-import core.common, core.result, core.report, commonqt
+from .core import common, result, report
+from . import commonqt
 
 import sys,datetime
 import xml.sax
 import os.path
 
 def loadResult(path):
-    res = core.result.Result()
+    res = result.Result()
 
     try:
         if path.endswith('.gotmresult'):
@@ -209,7 +210,7 @@ class ConfigureReportWidget(QtWidgets.QWidget):
 
         self.factory = xmlstore.gui_qt4.PropertyEditorFactory(self.report.store)
 
-        reportname2path = core.report.Report.getTemplates()
+        reportname2path = report.Report.getTemplates()
 
         self.labTemplates = QtWidgets.QLabel('Report template:',self)
         self.comboTemplates = QtWidgets.QComboBox(parent)
@@ -321,7 +322,7 @@ class PageReportGenerator(commonqt.WizardPage):
         
         import xmlplot.gui_qt4
         deffont = xmlplot.gui_qt4.getFontSubstitute(u''.__class__(self.fontInfo().family()))
-        self.report = core.report.Report(defaultfont = deffont)
+        self.report = report.Report(defaultfont = deffont)
         
         # Copy report settings from result.
         self.report.store.root.copyFrom(self.result.store['ReportSettings'],replace=True)
@@ -496,7 +497,7 @@ def visualizeResult(result):
 
     visualizer = VisualizeWidget(result,parent=dialog)
 
-    pm = QtGui.QPixmap(os.path.join(core.common.getDataRoot(),'logo.png'),'PNG')
+    pm = QtGui.QPixmap(os.path.join(common.getDataRoot(),'logo.png'),'PNG')
     piclabel = QtWidgets.QLabel(dialog)
     piclabel.setPixmap(pm)
     piclabel.setMinimumWidth(20)

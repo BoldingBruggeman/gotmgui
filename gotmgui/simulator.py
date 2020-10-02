@@ -4,7 +4,8 @@
 
 from xmlstore.qt_compat import QtGui, QtCore, QtWidgets
 
-import commonqt, core.common
+from . import commonqt
+from .core import common
 
 # Here we can set the stack size for GOTM (in bytes). Note: bio modules sometimes
 # need a very high stack size (in particular if Lagrangian variables are used)
@@ -38,14 +39,14 @@ class GOTMThread(QtCore.QThread):
   def run(self):
     assert self.scenario is not None, 'No scenario specified.'
     try:
-        import core.simulator
+        from .core import simulator
     except ImportError as e:
-        import core.result
-        self.res = core.result.Result()
+        from .core import result
+        self.res = result.Result()
         self.res.errormessage = str(e)
         self.res.returncode = 1
         raise
-    self.res = core.simulator.simulate(self.scenario,continuecallback=self.canContinue,progresscallback=self.progressed.emit)
+    self.res = simulator.simulate(self.scenario,continuecallback=self.canContinue,progresscallback=self.progressed.emit)
     
   def stop(self):
     self.rwlock.lockForWrite()
@@ -139,7 +140,7 @@ class PageProgress(commonqt.WizardPage):
             
     def done(self):
         res = self.gotmthread.res
-        if core.common.verbose:
+        if common.verbose:
             print('GOTM thread shut-down; return code = %i' % res.returncode)
 
         layout = self.layout()

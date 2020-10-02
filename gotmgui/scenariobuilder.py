@@ -7,7 +7,9 @@ from xmlstore.qt_compat import QtGui, QtCore, QtWidgets, qt4_backend, qt4_backen
 # Import modules from standard Python library
 import sys,xml, os.path
 
-import core.scenario, core.result, xmlstore.util, xmlstore.gui_qt4, commonqt
+from .core import scenario, result
+from . import commonqt
+import xmlstore.util, xmlstore.gui_qt4
 
 class ScenarioWidget(QtWidgets.QWidget):
 
@@ -23,7 +25,7 @@ class ScenarioWidget(QtWidgets.QWidget):
         self.radioImport2 = QtWidgets.QRadioButton('Import a namelist-based scenario from an archive.',self)
 
         #self.labTemplate = QtWidgets.QLabel('Template:',self)
-        #default2path = core.scenario.Scenario.getDefaultValues()
+        #default2path = scenario.Scenario.getDefaultValues()
         #self.comboTemplates = QtWidgets.QComboBox(parent)
         #for (name,path) in default2path.items():
         #    self.comboTemplates.addItem(name,name)
@@ -108,9 +110,9 @@ class ScenarioWidget(QtWidgets.QWidget):
             if   checkedid==0:
                 #index = self.comboTemplates.currentIndex()
                 #defname = unicode(self.comboTemplates.itemData(index).toString())
-                #defscenario = core.scenario.Scenario.getDefault(defname,core.scenario.guiscenarioversion)
+                #defscenario = scenario.Scenario.getDefault(defname,scenario.guiscenarioversion)
                 #xmldom = defscenario.toXmlDom()
-                scen = core.scenario.Scenario.fromSchemaName(core.scenario.guiscenarioversion)
+                scen = scenario.Scenario.fromSchemaName(scenario.guiscenarioversion)
                 #scen.setStore(xmldom)
                 scen.fillMissingValues()
                 scen.resetChanged()
@@ -118,7 +120,7 @@ class ScenarioWidget(QtWidgets.QWidget):
                 path = self.pathOpen.path()
                 if path.endswith('.gotmresult'):
                     try:
-                        res = core.result.Result()
+                        res = result.Result()
                         res.load(path)
                     except Exception as e:
                         raise Exception('An error occurred while loading the result: '+str(e))
@@ -126,24 +128,24 @@ class ScenarioWidget(QtWidgets.QWidget):
                     res.release()
                 elif path.endswith('.xml'):
                     try:
-                        scen = core.scenario.Scenario.fromSchemaName(core.scenario.guiscenarioversion)
+                        scen = scenario.Scenario.fromSchemaName(scenario.guiscenarioversion)
                         scen.load(path)
                     except Exception as e:
                         raise Exception('An error occurred while loading the scenario: '+str(e))
                 else:
                     try:
-                        scen = core.scenario.Scenario.fromSchemaName(core.scenario.guiscenarioversion)
+                        scen = scenario.Scenario.fromSchemaName(scenario.guiscenarioversion)
                         scen.loadAll(path,callback=callback)
                     except Exception as e:
                         raise Exception('An error occurred while loading the scenario: '+str(e))
             elif checkedid==2:
                 try:
-                    scen = core.scenario.Scenario.fromNamelists(self.pathImport1.path(),strict = False,targetversion=core.scenario.guiscenarioversion,requireplatform='gotm')
+                    scen = scenario.Scenario.fromNamelists(self.pathImport1.path(),strict = False,targetversion=scenario.guiscenarioversion,requireplatform='gotm')
                 except Exception as e:
                     raise Exception('Cannot parse namelist files. Error: '+str(e))
             elif checkedid==3:
                 try:
-                    scen = core.scenario.Scenario.fromNamelists(self.pathImport2.path(),strict = False,targetversion=core.scenario.guiscenarioversion,requireplatform='gotm')
+                    scen = scenario.Scenario.fromNamelists(self.pathImport2.path(),strict = False,targetversion=scenario.guiscenarioversion,requireplatform='gotm')
                 except Exception as e:
                     raise Exception('Cannot parse namelist files. Error: '+str(e))
 
