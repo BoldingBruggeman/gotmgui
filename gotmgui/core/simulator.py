@@ -12,6 +12,10 @@ gotmscenarioversion = 'gotm-%s' % '.'.join(map(str, gotmscenarioversion))
 
 verbose = False
 
+clock = getattr(time, 'perf_counter', None)
+if clock is None:
+    clock = time.clock
+
 class Simulator(object):
     def __init__(self,scenario,redirect=True):
         self.scenario = scenario
@@ -145,9 +149,9 @@ class Simulator(object):
 
         hasmore = True
         
-        time_runstart = time.clock()
+        time_runstart = clock()
         while hasmore:
-            time_slicestart = time.clock()
+            time_slicestart = clock()
             
             # Check if we have to cancel
             if continuecallback is not None and not continuecallback():
@@ -157,7 +161,7 @@ class Simulator(object):
 
             hasmore = self.runSlab(slicesize=islicesize)
 
-            time_slicestop = time.clock()
+            time_slicestop = clock()
 
             if progresscallback is not None:
                 # Send 'progress' event
