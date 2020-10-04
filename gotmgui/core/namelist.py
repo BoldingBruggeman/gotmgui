@@ -138,10 +138,11 @@ class Namelist(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         ret = self.getNextVariable()
         if ret is None: raise StopIteration
         return ret
+    next = __next__
 
     def getNextVariable(self):
         if not self.assignments: return None

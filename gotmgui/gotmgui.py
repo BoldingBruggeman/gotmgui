@@ -9,8 +9,7 @@ if not hasattr(sys,'frozen'):
     rootdir = os.path.dirname(os.path.realpath(__file__))
     path = sys.path[:]
     if os.path.isdir(os.path.join(rootdir, '../../xmlstore/xmlstore')):
-        # Runnning from source (bbpy)
-        print('Detected that we are running from BBpy sources. Using local xmlstore/xmlplot.')
+        print('Detected that we are running from BBpy source. Using local xmlstore/xmlplot.')
         sys.path.insert(0, os.path.join(rootdir, '../../xmlstore'))
         sys.path.insert(0, os.path.join(rootdir, '../../xmlplot'))
 

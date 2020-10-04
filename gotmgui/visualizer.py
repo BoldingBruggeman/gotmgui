@@ -139,10 +139,10 @@ class VisualizeWidget(QtWidgets.QWidget):
         if len(selected)==0: return
         node = selected[0].internalPointer()
         if node.hasChildren(): return
-        
+
         # Show wait cursor
         QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
-        
+
         try:
             # Save settings for currently shown figure
             self.saveFigureSettings()
@@ -150,15 +150,15 @@ class VisualizeWidget(QtWidgets.QWidget):
             # Get name and path of variable about to be shown.
             self.varname = node.getId()
             self.varpath = '/'.join(node.location)
-            
+
             # Disable figure updating while we make changes.
             self.figurepanel.figure.setUpdating(False)
-            
+
             # Plot; first try stored figures, otherwise plot anew.
             props = self.figurepanel.figure.properties
             if not self.result.getFigure('result/'+self.varpath,props):
-                self.figurepanel.plot(self.varname,'result')
-            
+                self.figurepanel.plot('result[\'%s\']' % self.varname,'result')
+
             # Re-enable figure updating (this will force a redraw because things changed)
             self.figurepanel.figure.setUpdating(True)
         finally:
@@ -170,7 +170,7 @@ class VisualizeWidget(QtWidgets.QWidget):
         self.figurepanel = None
         self.treestore.release()
         self.treestore = None
-            
+
 class PageVisualize(commonqt.WizardPage):
     
     def __init__(self,parent=None):

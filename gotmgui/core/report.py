@@ -236,13 +236,13 @@ class Report(xmlstore.util.referencedobject):
             for varpath in plotvariables:
                 varid = varpath.split('/')[-1]
                 
-                longname = result[varid].getLongName()
+                longname = result.getVariable(varid).getLongName()
                 if callback is not None: callback(istep/steps,'Creating figure for %s...' % longname)
                 
                 fig.setUpdating(False)
                 if not result.getFigure('result/'+varpath,fig.properties):
                     fig.clearProperties()
-                    fig.addVariable(varid)
+                    fig.addVariable('result[\'%s\']' % varid)
                 fig['FontScaling'].setValue(fontscaling)
                 fig.setUpdating(True)
                 filename = 'out_'+varid+'.png'
