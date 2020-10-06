@@ -15,11 +15,11 @@ setup(
       license='GPL',
       install_requires=['xmlplot>=0.9.19'],
       classifiers=[
-          'Development Status :: 3 - Alpha',
-          'Intended Audience :: Developers',
-          'Topic :: Numerical Models :: Configuration Tools',
-          'License :: OSI Approved :: GPL License',
-          'Programming Language :: Python :: 2.7',
+          'Development Status :: 4 - Beta',
+          'Intended Audience :: Science/Research',
+          'Topic :: Scientific/Engineering',
+          'License :: OSI Approved :: GNU General Public License (GPL)',
+          'Programming Language :: Python',
       ],
       entry_points={
           'console_scripts': [
