@@ -13,6 +13,7 @@ setup(
       author='Jorn Bruggeman',
       author_email='jorn@bolding-bruggeman.com',
       license='GPL',
+      install_requires=['xmlplot>=0.9.19'],
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Intended Audience :: Developers',
